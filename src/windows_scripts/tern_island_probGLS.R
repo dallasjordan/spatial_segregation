@@ -41,23 +41,21 @@ library(lubridate)
 # the Data Inventory spreadsheet. This should be the only section that requires manual changing
 # in between tag analyses
 
-Species <- "LAAL"
-Year <- "1108"
-TrackNumber <- "03" 
+Species <- "29"
+Year <- "08"
+TrackNumber <- "01" 
 
 # first/last date as noted in data_inventory
 
 # "MM/D/YYYY or MM/DD/YYYY", no 0 for e.g. 05, for older daylogs
-actual_first <- "12/27/2007"
-actual_last <- "12/22/2008"
-start <- as.POSIXct("2007-12-26 23:59", tz="Pacific/Midway") # Time when tagged, 11:59pm of previous day if unknown
-end   <- as.POSIXct("2008-12-23 00:01", tz="Pacific/Midway") # Time when tag was retrieved, 12:01am of next day if unknown 
+start    <- as.Date("2012-07-11")
+end      <- as.Date("2013-05-01")
 
 # for all Tern tags, the coordinates of Tern island colony
 
-lat.calib <- 28.2
-lon.calib <- 182.65
-wetdry.resolution <- 432 # sampling rate of Basic Log in seconds, e.g. once every 5 min = 300 seconds
+lat.calib <- 23.87
+lon.calib <- 193.72 # correct Tern coords already
+wetdry.resolution <- 100 # sampling rate of Basic Log in seconds, e.g. once every 5 min = 300 seconds
 
 
 # Read in data ------------------------------------------------------------
