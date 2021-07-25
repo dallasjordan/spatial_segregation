@@ -2,6 +2,7 @@
 # Plotting contours from adehabitathr - used for publication figures
 # June 30 2021
 # Dallas Jordan
+# Last updated July 24 2021
 
 # adapting overallLAALBFAL_mapping script to plot my rasters and contours for Midway LAAL
 # THERE IS ONE DEPENDENCY IN THIS SCRIPT - MUST LOAD IN THE npac_base Rdata CREATED IN overallLAALBFAL_mapping
@@ -46,7 +47,13 @@ lcea <- "+proj=cea +lat_0=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_d
 #############################
 
 #load contours, as of Jun 22 they are SpatialPolygonsDataFrame
+# for mac
 setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/individual/midLAAL/master_script_contours/")
+load("vert95_midLAAL.Rdata")
+load("vert50_midLAAL.Rdata")
+load("vert10_midLAAL.Rdata")
+# for pc
+setwd("E:/project_data/spatial_segregation/figures/individual/midLAAL/master_script_contours/")
 load("vert95_midLAAL.Rdata")
 load("vert50_midLAAL.Rdata")
 load("vert10_midLAAL.Rdata")
@@ -58,7 +65,7 @@ ml95c <- ml95c %>%
   st_wrap_dateline() %>% # wrap around the dateline
   st_shift_longitude() %>%  
   st_union(by_feature = TRUE) %>% 
-  st_transform(lcea)
+  st_transform(crs = 3832)
 
 ml50c <- st_as_sf(vert50_midLAAL) # 50th UD Contour
 ml50c <- ml50c %>% 
@@ -66,7 +73,7 @@ ml50c <- ml50c %>%
   st_wrap_dateline() %>% # wrap around the dateline
   st_shift_longitude() %>%  
   st_union(by_feature = TRUE) %>% 
-  st_transform(lcea)
+  st_transform(crs = 3832)
 
 
 ml10c <- st_as_sf(vert10_midLAAL) # 10th UD Contour
@@ -75,7 +82,7 @@ ml10c <- ml10c %>%
   st_wrap_dateline() %>% # wrap around the dateline
   st_shift_longitude() %>%  
   st_union(by_feature = TRUE) %>% 
-  st_transform(lcea)
+  st_transform(crs = 3832)
 
 # additions July 7 to get viridis scale working
 ml95c$id <- "foraging_range"
@@ -142,6 +149,30 @@ load("npac_base_res.Rdata")
 # the actual one you want to use
 load("npac_base_i.Rdata")
 
+# second method
+# on pc, loading in data object from overallLAALBFAL_mapping to get the same proportions as my other figure for this manuscript
+    setwd("E:/project_data/spatial_segregation/figures/allLAAL_allBFAL/master_script_rasters/")
+    load("allBFAL_ud_vol_rast.Rdata")
+    allBFAL_rast <- allBFAL.ud.vol.raster
+    allBFAL.sp <- as(allBFAL_rast, "SpatialPixelsDataFrame")
+    gridded(allBFAL.sp)
+    spplot(allBFAL.sp, main="raster to sp - SpatialPixelsDataFrame")
+    allBFAL.rast.stars <- st_as_stars(allBFAL.sp, att=1)
+    allBFAL.rast.stars
+    allBFAL.rast.sf <- st_as_sf(allBFAL.rast.stars)
+    plot(allBFAL.rast.sf)
+    allBFAL.rast.sf <- allBFAL.rast.sf %>% 
+      st_transform(crs = 4326) %>% 
+      st_wrap_dateline() %>%
+      st_shift_longitude() %>% 
+      st_union(by_feature = TRUE) %>% 
+      st_transform(crs = 3832)
+    plot(allBFAL.rast.sf, main="PDCmerc with lat_ts=0") # raster is now sf object in PDC mercator
+    ab <- allBFAL.rast.sf
+    
+    npac_base_i <- ptolemy::extract_gshhg(allBFAL.rast.sf, resolution = "i", epsg = NULL, buffer = 5000,
+                                          simplify = FALSE) # using an sf object to set the appropriate boundary box and CRS
+
 # set up necessary color gradients
 bluecols <- brewer.pal(9, 'Blues')
 pie(rep(1,9), col = bluecols)
@@ -171,22 +202,23 @@ figure <- ggplot() +
   geom_sf(data=npac_base_i) +
   viridis::scale_fill_viridis(direction = -1, discrete=T)+
   guides(fill=guide_legend(title="Contour level"))+
-  coord_sf(xlim = c(-4537510, 6536980), ylim = c(1463885, 6141532)) +
+  coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
   theme_bw()+
   ggtitle("a")+
   theme(plot.title = element_text(size=12))+
-  theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
-        legend.key.height = unit(0.5, 'cm'), #change legend key height
-        legend.key.width = unit(0.5, 'cm'), #change legend key width
-        legend.title = element_text(size=10), #change legend title font size
-        legend.text = element_text(size=8))+ #change legend text font size
-  scalebar(x.min=6547510,x.max=953690,y.min=1803885,y.max=6141532, location = "bottomright", dist = 1500,
-           dist_unit = "km", transform = FALSE, height = 0.03, st.size=3, st.dist = 0.05)+
-  annotation_north_arrow(location = "br", which_north = "true",
-                         pad_x = unit(0.7, "in"), pad_y = unit(0.34, "in"),
-                         style = north_arrow_fancy_orienteering,
-                         height = unit(.75,"cm"),
-                         width = unit(.75,"cm"))+
+  theme(legend.position = "none")+
+  # theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
+  #       legend.key.height = unit(0.5, 'cm'), #change legend key height
+  #       legend.key.width = unit(0.5, 'cm'), #change legend key width
+  #       legend.title = element_text(size=10), #change legend title font size
+  #       legend.text = element_text(size=8))+ #change legend text font size
+  # scalebar(x.min=6547510,x.max=953690,y.min=1803885,y.max=6141532, location = "bottomright", dist = 1500,
+  #          dist_unit = "km", transform = FALSE, height = 0.03, st.size=3, st.dist = 0.05)+
+  # annotation_north_arrow(location = "br", which_north = "true",
+  #                        pad_x = unit(0.7, "in"), pad_y = unit(0.34, "in"),
+  #                        style = north_arrow_fancy_orienteering,
+  #                        height = unit(.75,"cm"),
+  #                        width = unit(.75,"cm"))+
   theme(axis.title.x=element_blank(),
         axis.title.y=element_blank())
 

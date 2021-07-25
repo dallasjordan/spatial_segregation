@@ -1,6 +1,7 @@
 # Plotting contours from adehabitathr - used for publication figures
-# Most up to date mapping script June 21 2021
+# Most up to date mapping script July 24 2021
 # Dallas Jordan
+# Last updated : July 24 2021
 
 # adapting master_mapping script to plot my rasters and contours for overallLAAL/overallBFAL
 # notes and organization is better here than master_mapping script. Will need to adapt that script or just use this one
@@ -146,7 +147,7 @@ allLAAL.rast.sf <- allLAAL.rast.sf %>%
   st_shift_longitude() %>% 
   st_union(by_feature = TRUE) %>% 
   st_transform(crs = 3832)
-plot(allLAAL.rast.sf, main="lcea with lat_ts=0") # raster is now sf object in lcea
+plot(allLAAL.rast.sf, main="PDCmerc with lat_ts=0") # raster is now sf object in PDC mercator
 
 # now filter into different groups
 al <- allLAAL.rast.sf
@@ -169,7 +170,7 @@ allBFAL.rast.sf <- allBFAL.rast.sf %>%
   st_shift_longitude() %>% 
   st_union(by_feature = TRUE) %>% 
   st_transform(crs = 3832)
-plot(allBFAL.rast.sf, main="lcea with lat_ts=0") # raster is now sf object in lcea
+plot(allBFAL.rast.sf, main="PDCmerc with lat_ts=0") # raster is now sf object in PDC mercator
 
 # now filter into different groups
 ab <- allBFAL.rast.sf
