@@ -47,11 +47,14 @@ lcea <- "+proj=cea +lat_0=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_d
 #############################
 
 #load contours, as of Jun 22 they are SpatialPolygonsDataFrame
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/individual/midLAAL/master_script_contours/")
-load("vert95_midLAAL.Rdata")
-load("vert50_midLAAL.Rdata")
-load("vert10_midLAAL.Rdata")
-
+# for mac
+  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/individual/midLAAL/master_script_contours/")
+  load("vert95_midLAAL.Rdata")
+  load("vert50_midLAAL.Rdata")
+  load("vert10_midLAAL.Rdata")
+# for pc
+  setwd()
+  
 # Contours in 'sf'
 ml95c <- st_as_sf(vert95_midLAAL) # 95th UD Contour
 ml95c <- ml95c %>% 

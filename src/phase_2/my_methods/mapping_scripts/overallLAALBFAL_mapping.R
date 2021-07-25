@@ -47,13 +47,17 @@ lcea <- "+proj=cea +lat_0=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_d
 #############################
 
 #load contours, as of Jun 22 they are SpatialPolygonsDataFrame
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/allLAAL_allBFAL/master_script_contours/")
-load("vert95_allLAAL.Rdata")
-load("vert95_allBFAL.Rdata")
-load("vert50_allLAAL.Rdata")
-load("vert50_allBFAL.Rdata")
-load("vert10_allLAAL.Rdata")
-load("vert10_allBFAL.Rdata")
+# for mac
+  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/allLAAL_allBFAL/master_script_contours/")
+# for pc
+  setwd("E:/project_data/spatial_segregation/figures/allLAAL_allBFAL/master_script_contours")
+
+  load("vert95_allLAAL.Rdata")
+  load("vert95_allBFAL.Rdata")
+  load("vert50_allLAAL.Rdata")
+  load("vert50_allBFAL.Rdata")
+  load("vert10_allLAAL.Rdata")
+  load("vert10_allBFAL.Rdata")
 
 # LAAL contours
 al95c <- st_as_sf(vert95_allLAAL) # All LAAL 95th UD Contour
@@ -62,7 +66,7 @@ al95c <- al95c %>%
   st_wrap_dateline() %>% # wrap around the dateline
   st_shift_longitude() %>%  
   st_union(by_feature = TRUE) %>% 
-  st_transform(lcea)
+  st_transform(crs = 3832)
 
 al50c <- st_as_sf(vert50_allLAAL) # All LAAL 50th UD Contour
 al50c <- al50c %>% 
@@ -113,13 +117,17 @@ ab10c <- ab10c %>%
 ###############################
 
 # load rasters
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/allLAAL_allBFAL/master_script_rasters/")
+# for mac
+  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/allLAAL_allBFAL/master_script_rasters/")
+# for pc
+  setwd("E:/project_data/spatial_segregation/figures/allLAAL_allBFAL/master_script_rasters/")
 load("allBFAL_ud_vol_rast.Rdata")
 load("allLAAL_ud_vol_rast.Rdata")
 allLAAL_rast <- allLAAL.ud.vol.raster
 allBFAL_rast <- allBFAL.ud.vol.raster
 image(allLAAL_rast)
 image(allBFAL_rast)
+plot(allBFAL_rast)
 contour(allBFAL_rast,levels=c(95,50,10),add=T)
 contour(allLAAL_rast,levels=c(95,50,10),add=T)
 
@@ -137,7 +145,7 @@ allLAAL.rast.sf <- allLAAL.rast.sf %>%
   st_wrap_dateline() %>%
   st_shift_longitude() %>% 
   st_union(by_feature = TRUE) %>% 
-  st_transform(lcea)
+  st_transform(crs = 3832)
 plot(allLAAL.rast.sf, main="lcea with lat_ts=0") # raster is now sf object in lcea
 
 # now filter into different groups
@@ -160,7 +168,7 @@ allBFAL.rast.sf <- allBFAL.rast.sf %>%
   st_wrap_dateline() %>%
   st_shift_longitude() %>% 
   st_union(by_feature = TRUE) %>% 
-  st_transform(lcea)
+  st_transform(crs = 3832)
 plot(allBFAL.rast.sf, main="lcea with lat_ts=0") # raster is now sf object in lcea
 
 # now filter into different groups
@@ -189,6 +197,8 @@ npac_base_res <- ptolemy::extract_gshhg(allBFAL.rast.sf, resolution = "l", epsg 
 npac_base_i <- ptolemy::extract_gshhg(allBFAL.rast.sf, resolution = "i", epsg = NULL, buffer = 5000,
                                         simplify = FALSE) # using an sf object to set the appropriate boundary box and CRS
 
+# Second method, baked-in function for PDC mercator Npac basemap
+npac_base <- ptolemy::npac()
 
 npac_plot <- ggplot() + 
   geom_sf(data = npac_base,
@@ -196,7 +206,7 @@ npac_plot <- ggplot() +
   ggtitle('North Pacific Basemap (epsg:LCEA)')
 npac_plot
             
-            # Second method, used built-in npac basemap and transform to the projection I need (default for this one is
+            # Second method again, used built-in npac basemap and transform to the projection I need (default for this one is
             # WGS84 / PDC Mercator, but I need LCEA)
             npac_base2 <- ptolemy::npac(epsg = lcea) # EPSG code 6933 is Lambert Cylindrical Equal Area. This function will throw some errors, just ignore. Default is some other CRS
             
@@ -227,8 +237,33 @@ pie(rep(1, ncols), col = redcols2, border = NA, labels = NA)
 # ggplot call
 # Legends are too difficult to sort out here - just plotting enough to manipulate in Adobe Illustrator
 
-# First one is master: 
+# blank for adding placenames
 figure <- ggplot() + 
+  # base map and other parameters
+  geom_sf(data=npac_base_i) +
+  coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
+  theme_bw()+
+  ggtitle("a")+
+  theme(plot.title = element_text(size=12))+
+  theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
+        legend.key.height = unit(0.5, 'cm'), #change legend key height
+        legend.key.width = unit(0.5, 'cm'), #change legend key width
+        legend.title = element_text(size=10), #change legend title font size
+        legend.text = element_text(size=8))+ #change legend text font size
+  scalebar(x.min=9447510,x.max=953690,y.min=1673885,y.max=6141532, location = "bottomright", dist = 1500,
+           dist_unit = "km", transform = FALSE, height = 0.03, st.size=3, st.dist = 0.05)+
+  annotation_north_arrow(location = "br", which_north = "true",
+                         pad_x = unit(0.5, "in"), pad_y = unit(1, "in"),
+                         style = north_arrow_fancy_orienteering,
+                         height = unit(.75,"cm"),
+                         width = unit(.75,"cm"))+
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank())
+figure
+
+
+# LAAL RASTER
+figure1 <- ggplot() + 
   # LAAL raster
   geom_sf(data=al95, aes(fill=n, colors="transparent")) +
   scale_fill_gradientn(colors=bluecols2,na.value = "transparent",
@@ -250,68 +285,7 @@ figure <- ggplot() +
   # geom_sf(data=ab10c, color=("#E30303"), alpha=0.8, fill="#E30303") +
   # base map and other parameters
   geom_sf(data=npac_base_i) +
-  coord_sf(xlim = c(-4537510, 6536980), ylim = c(1463885, 6141532)) +
-  theme_bw()+
-  ggtitle("a")+
-  theme(plot.title = element_text(size=12))+
-  theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
-        legend.key.height = unit(0.5, 'cm'), #change legend key height
-        legend.key.width = unit(0.5, 'cm'), #change legend key width
-        legend.title = element_text(size=10), #change legend title font size
-        legend.text = element_text(size=8))+ #change legend text font size
-  scalebar(x.min=6547510,x.max=953690,y.min=1803885,y.max=6141532, location = "bottomright", dist = 1500,
-           dist_unit = "km", transform = FALSE, height = 0.03, st.size=3, st.dist = 0.05)+
-  annotation_north_arrow(location = "br", which_north = "true",
-                         pad_x = unit(0.7, "in"), pad_y = unit(0.34, "in"),
-                         style = north_arrow_fancy_orienteering,
-                         height = unit(.75,"cm"),
-                         width = unit(.75,"cm"))+
-  theme(axis.title.x=element_blank(),
-        axis.title.y=element_blank())
-
-figure
-
-
-figure2 <- ggplot() + 
-  # BFAL raster
-  geom_sf(data=ab95, aes(fill=n, colors="transparent")) +
-  scale_fill_gradientn(colors=redcols2,na.value = "transparent",
-                        breaks=c(0,50,100),labels=c(0,50,100),
-                       limits=c(0,100), name="BFAL UD%")+
-# base map and other parameters
-geom_sf(data=npac_base_i) +
-  coord_sf(xlim = c(-4537510, 6536980), ylim = c(1463885, 6141532)) +
-  theme_bw()+
-  ggtitle("b")+
-  theme(plot.title = element_text(size=12))+
-  theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
-        legend.key.height = unit(0.5, 'cm'), #change legend key height
-        legend.key.width = unit(0.5, 'cm'), #change legend key width
-        legend.title = element_text(size=10), #change legend title font size
-        legend.text = element_text(size=8))+ #change legend text font size
-  scalebar(x.min=6547510,x.max=953690,y.min=1803885,y.max=6141532, location = "bottomright", dist = 1500,
-           dist_unit = "km", transform = FALSE, height = 0.03, st.size=3, st.dist = 0.05)+
-  annotation_north_arrow(location = "br", which_north = "true",
-                         pad_x = unit(0.7, "in"), pad_y = unit(0.34, "in"),
-                         style = north_arrow_fancy_orienteering,
-                         height = unit(.75,"cm"),
-                         width = unit(.75,"cm"))+
-  theme(axis.title.x=element_blank(),
-        axis.title.y=element_blank())
-figure2
-
-figure3 <- ggplot() + 
-  # LAAL contours
-  geom_sf(data=al95c, color=("#87CEFF"), fill=alpha("#87CEFF",0.2)) +
-  geom_sf(data=al50c, color=("blue"), fill=alpha("blue",0.6)) +
-  # geom_sf(data=al10c, color=("darkblue"), alpha=0.8, fill="darkblue") +
-  # BFAL contours
-  geom_sf(data=ab95c, color=("#E39191"), fill=alpha("#E39191",0.2)) +
-  geom_sf(data=ab50c, color=("#E86464"), fill=alpha("#E86464",0.6)) +
-  # geom_sf(data=ab10c, color=("#E30303"), alpha=0.8, fill="#E30303") +
-  # base map and other parameters
-  geom_sf(data=npac_base_i) +
-  coord_sf(xlim = c(-4537510, 6536980), ylim = c(1463885, 6141532)) +
+  coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
   theme_bw()+
   ggtitle("c")+
   theme(plot.title = element_text(size=12))+
@@ -320,13 +294,76 @@ figure3 <- ggplot() +
         legend.key.width = unit(0.5, 'cm'), #change legend key width
         legend.title = element_text(size=10), #change legend title font size
         legend.text = element_text(size=8))+ #change legend text font size
-  scalebar(x.min=6547510,x.max=953690,y.min=1803885,y.max=6141532, location = "bottomright", dist = 1500,
-           dist_unit = "km", transform = FALSE, height = 0.03, st.size=3, st.dist = 0.05)+
-  annotation_north_arrow(location = "br", which_north = "true",
-                         pad_x = unit(0.7, "in"), pad_y = unit(0.34, "in"),
-                         style = north_arrow_fancy_orienteering,
-                         height = unit(.75,"cm"),
-                         width = unit(.75,"cm"))+
+  # scalebar(x.min=9947510,x.max=953690,y.min=1803885,y.max=6141532, location = "bottomright", dist = 1500,
+  #          dist_unit = "km", transform = FALSE, height = 0.03, st.size=3, st.dist = 0.05)+
+  # annotation_north_arrow(location = "br", which_north = "true",
+  #                        pad_x = unit(0.5, "in"), pad_y = unit(1, "in"),
+  #                        style = north_arrow_fancy_orienteering,
+  #                        height = unit(.75,"cm"),
+  #                        width = unit(.75,"cm"))+
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank())
+
+figure1
+
+
+# BFAL RASTER
+figure2 <- ggplot() + 
+  # BFAL raster
+  geom_sf(data=ab95, aes(fill=n, colors="transparent")) +
+  scale_fill_gradientn(colors=redcols2,na.value = "transparent",
+                        breaks=c(0,50,100),labels=c(0,50,100),
+                       limits=c(0,100), name="BFAL UD%")+
+# base map and other parameters
+  geom_sf(data=npac_base_i) +
+  coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
+  theme_bw()+
+  ggtitle("d")+
+  theme(plot.title = element_text(size=12))+
+  theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
+        legend.key.height = unit(0.5, 'cm'), #change legend key height
+        legend.key.width = unit(0.5, 'cm'), #change legend key width
+        legend.title = element_text(size=10), #change legend title font size
+        legend.text = element_text(size=8))+ #change legend text font size
+  # scalebar(x.min=9947510,x.max=953690,y.min=1803885,y.max=6141532, location = "bottomright", dist = 1500,
+  #          dist_unit = "km", transform = FALSE, height = 0.03, st.size=3, st.dist = 0.05)+
+  # annotation_north_arrow(location = "br", which_north = "true",
+  #                        pad_x = unit(0.5, "in"), pad_y = unit(1, "in"),
+  #                        style = north_arrow_fancy_orienteering,
+  #                        height = unit(.75,"cm"),
+  #                        width = unit(.75,"cm"))+
+  theme(axis.title.x=element_blank(),
+        axis.title.y=element_blank())
+figure2
+
+# LAAL AND BFAL CONTOURS, 50th UD and 95th UD
+figure3 <- ggplot() + 
+  # LAAL contours
+  geom_sf(data=al95c, color=("#87CEFF"), size=1.1, fill=alpha("#87CEFF",0.2)) +
+  geom_sf(data=al50c, color=("blue"), size=1.1, fill=alpha("blue",0.6)) +
+  # geom_sf(data=al10c, color=("darkblue"), alpha=0.8, fill="darkblue") +
+  # BFAL contours
+  geom_sf(data=ab95c, color=("#E39191"), size=1.1, fill=alpha("#E39191",0.2)) +
+  geom_sf(data=ab50c, color=("#E86464"), size=1.1, fill=alpha("#E86464",0.6)) +
+  # geom_sf(data=ab10c, color=("#E30303"), alpha=0.8, fill="#E30303") +
+  # base map and other parameters
+  geom_sf(data=npac_base_i) +
+  coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
+  theme_bw()+
+  ggtitle("b")+
+  theme(plot.title = element_text(size=12))+
+  theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
+        legend.key.height = unit(0.5, 'cm'), #change legend key height
+        legend.key.width = unit(0.5, 'cm'), #change legend key width
+        legend.title = element_text(size=10), #change legend title font size
+        legend.text = element_text(size=8))+ #change legend text font size
+  # scalebar(x.min=9947510,x.max=953690,y.min=1803885,y.max=6141532, location = "bottomright", dist = 1500,
+  #          dist_unit = "km", transform = FALSE, height = 0.03, st.size=3, st.dist = 0.05)+
+  # annotation_north_arrow(location = "br", which_north = "true",
+  #                        pad_x = unit(0.5, "in"), pad_y = unit(1, "in"),
+  #                        style = north_arrow_fancy_orienteering,
+  #                        height = unit(.75,"cm"),
+  #                        width = unit(.75,"cm"))+
   theme(axis.title.x=element_blank(),
         axis.title.y=element_blank())
 
@@ -336,7 +373,7 @@ figure3
 
 
 
-cowplot::plot_grid(figure, figure2, figure3, labelsize=12, ncol=1, nrow=3)
+# cowplot::plot_grid(figure, figure2, figure3, labelsize=12, ncol=1, nrow=3)
 
 
 
