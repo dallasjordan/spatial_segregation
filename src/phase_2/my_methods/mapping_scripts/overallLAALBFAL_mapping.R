@@ -400,7 +400,6 @@ c("#87CEFF", "#FFFFFF", "#FFFFFF")c("#FFFFFF")
 # Making study site map 
 
 midway <- c(182.63, 28.2)
-midway <- fortify(midway)
 tern <- c(193.716, 23.87)
 islands <- data.frame(ID = c("midway","tern"),
                       x = c(182.63,193.716),
@@ -409,20 +408,51 @@ islands <- data.frame(ID = c("midway","tern"),
 islands = fortify(islands)
 
 
-figure <- ggplot() + 
-  geom_point(data=islands, aes(x=x,y=y),col="red", size=5) +
+kure <- c(181.7064,28.3925)
+pearlhermes <- c(184.1667,27.8333)
+lisianski <- c(186.0335,26.0662)
+laysan <- c(188.2678,25.7679)
+gardner <- c(192.0012,24.9988)
+necker <- c(195.2997,23.5749)
+nihoa <- c(198.0782,23.0605)
+niihau <- c(199.8425,21.8921)
+kaula <- c(199.4579, 21.6547)
+kauai <- c(200.4739, 22.0964)
+oahu <- c(201.9999, 21.4389)
+guadalupe <- c(241.7239, 29.0525)
+senkaku <- c(123.5952,25.8061)
+torishima <- c(153.9808, 24.2868)
+ogasawara <- c(142.1063,26.9642)
+
+
+
+
+islands2 <- data.frame(ID = c("kure","pearlhermes","lisianski","laysan","gardner","necker","nihoa","niihau","kaula","kauai","oahu","guadalupe","senkaku","torishima","ogasawara"),
+                       x = c(181.7064,184.1667,186.0335,188.2678,192.0012,195.2997,198.0782,199.8425,199.4579,200.4739,201.9999,241.7239,123.5952,153.9808,142.1063),
+                       y = c(28.3925,27.8333,26.0662,25.7679,24.9988,23.5749,23.0605,21.8921,21.6547,22.0964,21.4389,29.0525,25.8061,24.2868,26.9642))
+
+islands2 = fortify(islands2)
+
+islands3 =rbind(islands, islands2)
+
+islands3 = fortify(islands3)
+
+
+figure <- ggplot()+
+  geom_point(data=islands3, aes(x=x,y=y),col="grey",size=4)+
   geom_sf(data=sf_worldmp)+ #I just called a discrete color scale here. Custom colors can get really tricky in sf when you have multiple layers.
   coord_sf(xlim = c(120, 240), ylim = c(10, 70)) +
   annotation_scale(location = "bl", width_hint = 0.5) +
   annotation_north_arrow(location = "bl", which_north = "true", 
-                         pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+                         pad_x = unit(1, "in"), pad_y = unit(0.5, "in"),
                          style = north_arrow_fancy_orienteering) +
-  theme_bw()+
+  theme_bw()
 
 # change colors 
 figure
 
-
+# 7/29 have some errors with this... can't get Midway/Tern to plot seperately and can't be bothered to figure it out right now. Also 
+# Guadalupe is just not plotting for some reason. I'm just fixing this shit in illustrator.
 
 
 
@@ -469,8 +499,7 @@ sf_worldmp <- sf_worldmp %>%
   st_transform(crs = 4326) %>% # transform to WGS84.
   st_wrap_dateline() %>% # wrap around the dateline
   st_shift_longitude() %>%  
-  st_union(by_feature = TRUE) %>% 
-  st_transform(lcea)
+  st_union(by_feature = TRUE) 
 sf_LAALpts <- st_as_sf(LAAL, coords=c("x","y"), crs=4326) #points
 sf_kde <- st_as_sf(LAALshape) #KDE, original projection
 
