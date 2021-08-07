@@ -46,7 +46,18 @@
     
   # Load in KDE contours to calculate area
     
-    # for pc
-    LAAL95contour <- load()
+    # for pc - You can load in the UDs and make contours or load in the contours
+    allLAALud <- load("E:/project_data/spatial_segregation/data/final_ud/allLAAL.Rdata")
+    allBFALud <- load("E:/project_data/spatial_segregation/data/final_ud/allBFAL.Rdata")
+    midLAALud <- load("E:/project_data/spatial_segregation/data/final_ud/midLAAL.Rdata")
+    ternLAALud <- load("E:/project_data/spatial_segregation/data/final_ud/midLAAL.Rdata")
+    
+    # for pc - loading in the contours
+    setwd("E:/project_data/spatial_segregation/figures/individual/midLAAL/master_script_contours/")
+    load("vert95_midLAAL.Rdata")
+    load("vert50_midLAAL.Rdata")
+    load("vert10_midLAAL.Rdata")
 
-
+    
+    plot(getverticeshr(allBFAL,percent=50), add=T)
+    vert50_allBFAL <- getverticeshr(allBFAL,percent=50)
