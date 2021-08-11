@@ -238,6 +238,16 @@ library(raster)
 
 # load in KDEs
 
+# for mac 
+setwd( "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/final_ud")
+path <- getwd()
+file_list <- list.files(path=path)
+
+for (i in 1:length(file_list)){
+  load(file_list[i])
+}
+
+# for pc 
 setwd("E:/project_data/spatial_segregation/data/final_ud")
 path <- getwd()
 file_list <- list.files(path=path)
