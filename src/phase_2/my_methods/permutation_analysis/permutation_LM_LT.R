@@ -95,7 +95,7 @@ image(a_ud)
 
 path <- "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/permutation_tests/test_stats/"
 setwd(path)
-load("all_test_stats.RData")
+load("all_test_stats.RData") # generated from master_script
 
 # Permute lm lt -----------------------------------------------------------
 
