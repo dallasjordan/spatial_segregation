@@ -1,13 +1,12 @@
 # Script to do permutations for "side project" with Julia and Lesley, showing how scale impacts overlap calculations and 
 # that previous methods don't necessarily work for our data set
+# This script handles UDOI
 # Dallas Jordan
 # August 12
 
 # This script 1. Loads in data,
 #             2. Makes kernelUD (estUD) objects,
-#             3. Permutes following Clay et al.,
-#             4. Calculates Williamson's SOI,
-#             5. Permutes for WSOI
+#             3. Permutes following Clay et al.
 
 # Setup -------------------------------------------------------------------
 
