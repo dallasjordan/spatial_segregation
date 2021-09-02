@@ -103,7 +103,7 @@ save(sppB_UD, file=paste0(path,"sppB_averaged_UD_case1.Rdata"))
   load(file_list[3])
   load(file_list[4])
   # for Mac
-  # FILL THIS IN WHEN YOU TRANSFER TO MAC, 8/27/2021 setwd(
+  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/overlap_sensitivity/")
   path <- getwd()
   file_list <- list.files(path=path)
   
