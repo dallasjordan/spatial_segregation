@@ -50,6 +50,8 @@ wind_files <- list.files(pattern='*.nc')
 wind_t1 <- read_ncdf(wind_files[1])
 wind_t1 # Make sure you got the right stuff!
 times_t1<-st_get_dimension_values(wind_t1, "time")  # stores times from each file 
+lat_t1 <- st_get_dimension_values(wind_t1, "latitude")
+lon_t1 <- st_get_dimension_values(wind_t1, "longitude")
 wind_t1_u<-as(wind_t1[1,,,], "Raster") # refer to U component
 wind_t1_v<-as(wind_t1[2,,,], "Raster") # v component 
 
