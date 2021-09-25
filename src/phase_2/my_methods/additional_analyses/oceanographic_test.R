@@ -112,6 +112,8 @@ setwd(nc_dir)
 
 chla_files <- list.files(pattern='*.nc') 
 
+# list of dates that you have
+
 for (i in 1:length(chla_files)) {
   mi<-read_ncdf(chla_files[i])
   times <- st_get_dimension_values(mi, "time")
@@ -122,21 +124,38 @@ for (i in 1:length(chla_files)) {
   }
 }
 
- # have to download in two parts then merge
-# download 120 to 180 and -180 to -120, and for latitude both 0 to 75
-
-chla <- read_ncdf(a)
-times <- st_get_dimension_values(mi, "time")
-all_times<-as.tibble(times)
+all_times<-as.tibble(times_all)
 all_times.name<-as.character(all_times)
 all_times_num<-as.numeric(unlist(all_times))
 
-# isolate chla 
-chla.df.left <- raster::as.data.frame(mi, xy=TRUE)
+# have to download in two parts then merge
+# download 120 to 180 and -180 to -120, and for latitude both 0 to 75
 
+# ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+#  Isolate chla for left of antimeridian
+# ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+# chla
+chla_files_left <- chla_files[grep("left",chla_files)]
+for (i in 1:length(chla_files_left)) {
+  mi<-read_ncdf(chla_files_left[i])
+  chla_left.df= raster::as.data.frame(mi, xy = TRUE)
+  if (i==1) {
+    chla_left<-chla_left.df
+  }else{
+    chla_left<-rbind(chla_left,chla_left.df)
+  }
+}
 
-
-
+   # ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+#  Isolate chla for right of antimeridian
+# ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+# chla
+chla_files_right <- chla_files[grep("right",chla_files)]
+for (i in 1:length(chla_files_right)) {
+  mi<-read_ncdf(chla_files_right[i])
+  chla_data_right<-as(mi[1,,,], "Raster")
+  chla_right.df= raster::as.data.frame(mi, xy = TRUE)
+}
 # setwd("/Users/tziporahserota/Desktop/Midway2/")
 # b <- list.files("/Users/tziporahserota/Desktop/Midway2/", pattern = ".nc")
 # ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
