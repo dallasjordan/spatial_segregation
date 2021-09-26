@@ -153,198 +153,23 @@ for (i in 1:length(chla_files_left)) {
 chla_files_right <- chla_files[grep("right",chla_files)]
 for (i in 1:length(chla_files_right)) {
   mi<-read_ncdf(chla_files_right[i])
-  chla_data_right<-as(mi[1,,,], "Raster")
   chla_right.df= raster::as.data.frame(mi, xy = TRUE)
-}
-# setwd("/Users/tziporahserota/Desktop/Midway2/")
-# b <- list.files("/Users/tziporahserota/Desktop/Midway2/", pattern = ".nc")
-# ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
-#  Create list of times
-# ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
-for (i in 1:length(a)) {
-  mi<-read_ncdf(a[i])
-  times <- st_get_dimension_values(mi, "time")
   if (i==1) {
-    times_all<-times
+    chla_right<-chla_right.df
   }else{
-    times_all<-c(times_all,times)
+    chla_right<-rbind(chla_right,chla_right.df)
   }
 }
 
-all_times<-as.tibble(times_all)
-all_times.name<-as.character(all_times)
-all_times_num<-as.numeric(unlist(all_times))
-
-# ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
-#  Isolate U and V components for 2 and 10 m 
-# ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
-# U-component, 2 m 
-for (i in 1:length(a)) {
-  mi<-read_ncdf(a[i])
-  wind_u<-as(mi[2,,,], "Raster")
-  wind_u.df= raster::as.data.frame(wind_u, xy = TRUE)
-  if (i==1) {
-    wind_U2M<-wind_u.df
-  }else{
-    wind_U2M<-cbind(wind_U2M,wind_u.df[, -c(1,2)])
-  }
-}
-
-# V-component, 2 m 
-for (i in 1:length(a)) {
-  mi<-read_ncdf(a[i])
-  wind_v<-as(mi[5,,,], "Raster")
-  wind_v.df= raster::as.data.frame(wind_v, xy = TRUE)
-  if (i==1) {
-    wind_V2M<-wind_v.df
-  }else{
-    wind_V2M<-cbind(wind_V2M,wind_v.df[, -c(1,2)])
-  }
-}
-
-
-# U-component, 10 m 
-for (i in 1:length(a)) {
-  mi<-read_ncdf(a[i])
-  wind_u<-as(mi[1,,,], "Raster")
-  wind_u.df= raster::as.data.frame(wind_u, xy = TRUE)
-  if (i==1) {
-    wind_U10M<-wind_u.df
-  }else{
-    wind_U10M<-cbind(wind_U10M,wind_u.df[, -c(1,2)])
-  }
-}
-
-# V-component, 10 m 
-for (i in 1:length(a)) {
-  mi<-read_ncdf(a[i])
-  wind_v<-as(mi[4,,,], "Raster")
-  wind_v.df= raster::as.data.frame(wind_v, xy = TRUE)
-  if (i==1) {
-    wind_V10M<-wind_v.df
-  }else{
-    wind_V10M<-cbind(wind_V10M,wind_v.df[, -c(1,2)])
-  }
-}
-
-
-# U-component, 50 m 
-for (i in 1:length(a)) {
-  mi<-read_ncdf(a[i])
-  wind_u<-as(mi[3,,,], "Raster")
-  wind_u.df= raster::as.data.frame(wind_u, xy = TRUE)
-  if (i==1) {
-    wind_U50M<-wind_u.df
-  }else{
-    wind_U50M<-cbind(wind_U50M,wind_u.df[, -c(1,2)])
-  }
-}
-
-# V-component, 50 m 
-for (i in 1:length(a)) {
-  mi<-read_ncdf(a[i])
-  wind_v<-as(mi[6,,,], "Raster")
-  wind_v.df= raster::as.data.frame(wind_v, xy = TRUE)
-  if (i==1) {
-    wind_V50M<-wind_v.df
-  }else{
-    wind_V50M<-cbind(wind_V50M,wind_v.df[, -c(1,2)])
-  }
-}
-
-# have to repeat with second data file
-setwd("/Volumes/GoogleDrive/My Drive/THORNE_LAB/Data/Feldman_Analysis/Wind/Merra-2Datasets/Hourly/Dec2019-Feb2020_WAALinc/R/")
-b <- list.files("/Volumes/GoogleDrive/My Drive/THORNE_LAB/Data/Feldman_Analysis/Wind/Merra-2Datasets/Hourly/Dec2019-Feb2020_WAALinc/R/", pattern = ".nc")
-
-# U-component, 2 m 
-for (i in 1:length(b)) {
-  mi<-read_ncdf(b[i])
-  wind_u2<-as(mi[2,,,], "Raster")
-  wind_u.df2= raster::as.data.frame(wind_u2, xy = TRUE)
-  if (i==1) {
-    wind_U2M2<-wind_u.df2
-  }else{
-    wind_U2M2<-cbind(wind_U2M2,wind_u.df2[, -c(1,2)])
-  }
-}
-
-# V-component, 2 m 
-for (i in 1:length(b)) {
-  mi<-read_ncdf(b[i]) 
-  wind_v2<-as(mi[5,,,], "Raster")
-  wind_v.df2= raster::as.data.frame(wind_v2, xy = TRUE)
-  if (i==1) {
-    wind_V2M2<-wind_v.df2
-  }else{
-    wind_V2M2<-cbind(wind_V2M2,wind_v.df2[, -c(1,2)])
-  }
-}
-
-
-# U-component, 10 m 
-for (i in 1:length(b)) {
-  mi<-read_ncdf(b[i])
-  wind_u2<-as(mi[1,,,], "Raster")
-  wind_u.df2= raster::as.data.frame(wind_u2, xy = TRUE)
-  if (i==1) {
-    wind_U10M2<-wind_u.df2
-  }else{
-    wind_U10M2<-cbind(wind_U10M2,wind_u.df2[, -c(1,2)])
-  }
-}
-
-# V-component, 10 m 
-for (i in 1:length(b)) {
-  mi<-read_ncdf(b[i])
-  wind_v2<-as(mi[4,,,], "Raster")
-  wind_v.df2= raster::as.data.frame(wind_v2, xy = TRUE)
-  if (i==1) {
-    wind_V10M2<-wind_v.df2
-  }else{
-    wind_V10M2<-cbind(wind_V10M2,wind_v.df2[, -c(1,2)])
-  }
-}
-
-
-# U-component, 50 m 
-for (i in 1:length(b)) {
-  mi<-read_ncdf(b[i])
-  wind_u2<-as(mi[3,,,], "Raster")
-  wind_u.df2= raster::as.data.frame(wind_u2, xy = TRUE)
-  if (i==1) {
-    wind_U50M2<-wind_u.df2
-  }else{
-    wind_U50M2<-cbind(wind_U50M2,wind_u.df2[, -c(1,2)])
-  }
-}
-
-# V-component, 50 m 
-for (i in 1:length(b)) {
-  mi<-read_ncdf(b[i])
-  wind_v2<-as(mi[6,,,], "Raster")
-  wind_v.df2= raster::as.data.frame(wind_v2, xy = TRUE)
-  if (i==1) {
-    wind_V50M2<-wind_v.df2
-  }else{
-    wind_V50M2<-cbind(wind_V50M2,wind_v.df2[, -c(1,2)])
-  }
-}
-
-wind_U2M <- rbind(wind_U2M, wind_U2M2)
-wind_U10M <- rbind(wind_U10M, wind_U10M2)
-wind_U50M <- rbind(wind_U50M, wind_U50M2)
-wind_V2M <- rbind(wind_V2M, wind_V2M2)
-wind_V10M <- rbind(wind_V10M, wind_V10M2)
-wind_V50M <- rbind(wind_V50M, wind_V50M2)
+# combine left and right
+chla_all <- rbind(chla_left, chla_right)
 
 # convert to rasters
-u_stack2M<-rasterFromXYZ(wind_U2M)
-v_stack2M<-rasterFromXYZ(wind_V2M)
-u_stack10M<-rasterFromXYZ(wind_U10M)
-v_stack10M<-rasterFromXYZ(wind_V10M)
-u_stack50M<-rasterFromXYZ(wind_U50M)
-v_stack50M<-rasterFromXYZ(wind_V50M)
+chla_stack<-rasterFromXYZ(chla_left)
 
+# this is overflowing. so, need to chop it up into smaller rasters. Subset the dataframe by lat lon parameters and make rasters out of those
+
+chla_small_left <- chla_left %>% subset(chla_left,)
 
 
 
