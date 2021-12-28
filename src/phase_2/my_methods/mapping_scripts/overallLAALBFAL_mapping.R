@@ -49,7 +49,7 @@ lcea <- "+proj=cea +lat_0=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_d
 
 #load contours, as of Jun 22 they are SpatialPolygonsDataFrame
 # for mac
-  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/allLAAL_allBFAL/master_script_contours/")
+  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/allLAAL_allBFAL/master_script_contours/")
 # for pc
   setwd("E:/project_data/spatial_segregation/figures/allLAAL_allBFAL/master_script_contours")
 
@@ -67,7 +67,7 @@ al95c <- al95c %>%
   st_wrap_dateline() %>% # wrap around the dateline
   st_shift_longitude() %>%  
   st_union(by_feature = TRUE) %>% 
-  st_transform(crs = 3832)
+  st_transform(crs = lcea)
 
 al50c <- st_as_sf(vert50_allLAAL) # All LAAL 50th UD Contour
 al50c <- al50c %>% 
@@ -119,7 +119,7 @@ ab10c <- ab10c %>%
 
 # load rasters
 # for mac
-  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/allLAAL_allBFAL/master_script_rasters/")
+  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/allLAAL_allBFAL/master_script_rasters/")
 # for pc
   setwd("E:/project_data/spatial_segregation/figures/allLAAL_allBFAL/master_script_rasters/")
 load("allBFAL_ud_vol_rast.Rdata")
@@ -146,8 +146,8 @@ allLAAL.rast.sf <- allLAAL.rast.sf %>%
   st_wrap_dateline() %>%
   st_shift_longitude() %>% 
   st_union(by_feature = TRUE) %>% 
-  st_transform(crs = 3832)
-plot(allLAAL.rast.sf, main="PDCmerc with lat_ts=0") # raster is now sf object in PDC mercator
+  st_transform(crs = lcea)
+plot(allLAAL.rast.sf, main="lcea with lat_ts=0") # raster is now sf object in PDC mercator
 
 # now filter into different groups
 al <- allLAAL.rast.sf
@@ -169,8 +169,8 @@ allBFAL.rast.sf <- allBFAL.rast.sf %>%
   st_wrap_dateline() %>%
   st_shift_longitude() %>% 
   st_union(by_feature = TRUE) %>% 
-  st_transform(crs = 3832)
-plot(allBFAL.rast.sf, main="PDCmerc with lat_ts=0") # raster is now sf object in PDC mercator
+  st_transform(crs = lcea)
+plot(allBFAL.rast.sf, main="lcea with lat_ts=0") # raster is now sf object in PDC mercator
 
 # now filter into different groups
 ab <- allBFAL.rast.sf
@@ -267,7 +267,7 @@ figure
 figure1 <- ggplot() + 
   # LAAL raster
   geom_sf(data=al95, aes(fill=n, colors="transparent")) +
-  scale_fill_gradientn(colors=bluecols2,na.value = "transparent",
+  scale_fill_gradientn(colors=redcols2,na.value = "transparent",
                       breaks=c(0,50,100),labels=c(0,50,100),
                       limits=c(0,100), name="LAAL UD%")+
   new_scale("fill")+
@@ -286,9 +286,10 @@ figure1 <- ggplot() +
   # geom_sf(data=ab10c, color=("#E30303"), alpha=0.8, fill="#E30303") +
   # base map and other parameters
   geom_sf(data=npac_base_i) +
-  coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
+  coord_sf(expand=F)+
+  #for PDC mercator: coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
   theme_bw()+
-  ggtitle("c")+
+  ggtitle("a")+
   theme(plot.title = element_text(size=12))+
   theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
         legend.key.height = unit(0.5, 'cm'), #change legend key height
@@ -312,14 +313,15 @@ figure1
 figure2 <- ggplot() + 
   # BFAL raster
   geom_sf(data=ab95, aes(fill=n, colors="transparent")) +
-  scale_fill_gradientn(colors=redcols2,na.value = "transparent",
+  scale_fill_gradientn(colors=bluecols2,na.value = "transparent",
                         breaks=c(0,50,100),labels=c(0,50,100),
                        limits=c(0,100), name="BFAL UD%")+
 # base map and other parameters
   geom_sf(data=npac_base_i) +
-  coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
+  coord_sf(expand=F)+
+  # for PDC mercator: coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
   theme_bw()+
-  ggtitle("d")+
+  ggtitle("b")+
   theme(plot.title = element_text(size=12))+
   theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
         legend.key.height = unit(0.5, 'cm'), #change legend key height
@@ -340,18 +342,19 @@ figure2
 # LAAL AND BFAL CONTOURS, 50th UD and 95th UD
 figure3 <- ggplot() + 
   # LAAL contours
-  geom_sf(data=al95c, color=("#87CEFF"), size=1.1, fill=alpha("#87CEFF",0.2)) +
-  geom_sf(data=al50c, color=("blue"), size=1.1, fill=alpha("blue",0.6)) +
+  geom_sf(data=ab95c, color=("#87CEFF"), size=1, fill=alpha("#87CEFF",0.2)) +
+  geom_sf(data=ab50c, color=("blue"), size=1, fill=alpha("blue",0.6)) +
   # geom_sf(data=al10c, color=("darkblue"), alpha=0.8, fill="darkblue") +
   # BFAL contours
-  geom_sf(data=ab95c, color=("#E39191"), size=1.1, fill=alpha("#E39191",0.2)) +
-  geom_sf(data=ab50c, color=("#E86464"), size=1.1, fill=alpha("#E86464",0.6)) +
+  geom_sf(data=al95c, color=("#E39191"), size=1, fill=alpha("#E39191",0.2)) +
+  geom_sf(data=al50c, color=("#E86464"), size=1, fill=alpha("#E86464",0.6)) +
   # geom_sf(data=ab10c, color=("#E30303"), alpha=0.8, fill="#E30303") +
   # base map and other parameters
   geom_sf(data=npac_base_i) +
-  coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
+  coord_sf(expand=F)+
+  # for PDC mercator: coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
   theme_bw()+
-  ggtitle("b")+
+  ggtitle("c")+
   theme(plot.title = element_text(size=12))+
   theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
         legend.key.height = unit(0.5, 'cm'), #change legend key height

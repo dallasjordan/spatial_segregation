@@ -47,7 +47,7 @@ lcea <- "+proj=cea +lat_0=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_d
 #############################
 
 #load contours, as of Jun 22 they are SpatialPolygonsDataFrame
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/individual/ternLAAL/master_script_contours/")
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/individual/ternLAAL/master_script_contours/")
 load("vert95_ternLAAL.Rdata")
 load("vert50_ternLAAL.Rdata")
 load("vert10_ternLAAL.Rdata")
@@ -83,7 +83,7 @@ tl10c <- tl10c %>%
 ###############################
 
 # load rasters
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/individual/ternLAAL/master_script_rasters/")
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/individual/ternLAAL/master_script_rasters/")
 load("ternLAAL_ud_vol_rast.Rdata")
 ternLAAL_rast <- ternLAAL.ud.vol.raster
 image(ternLAAL_rast)
@@ -122,7 +122,7 @@ tl10 <- tl %>% filter(n<10.0000001)
 # Ptolemy package, formerly "nPacMaps". Very amazing for North Pacific Mapping
 
 # First method, generate a basemap based on the extent and crs of data
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/basemap/")
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/basemap/")
 load("npac_base.Rdata")
 
 # for faster test plotting

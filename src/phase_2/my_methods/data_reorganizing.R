@@ -358,5 +358,175 @@ save(LAAL, file="LAALdata_tern_withTrackID.Rdata")
 save(BFAL, file="BFALdata_tern_withTrackID.Rdata")
 
 
+###################################################
+###################################################
 
+# Repeat the above, but preserving trip ID AND DATE
+
+###################################################
+###################################################
+
+convlon <- function(lon){
+  ifelse(lon < 0, lon + 360, lon)
+}
+years <- c("2008","2009","2010","2011","2012")
+
+
+
+###################################################
+###################################################
+###################################################
+
+# MIDWAY
+
+###################################################
+###################################################
+###################################################
+
+###################################################
+#COMBINE ALL INDIVIDUALS IN A YEAR, PRESERVE INDIVIDUAL ID:
+
+# Make LAAL data object
+
+SPECIES = "LAAL"
+
+setwd(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/midway_postbreeding_exports/",
+             SPECIES,"/"))
+data1<-data.frame()
+for (i in 1:5){
+  files <- list.files(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/midway_postbreeding_exports/",SPECIES,"/",years[i]), pattern = "csv")
+  setwd(paste0(getwd(),"/",years[i]))
+  file_list <- lapply(files, read.csv, stringsAsFactors = FALSE)
+  for (j in 1:length(file_list)){
+    file_list[[j]]$id <- paste0(years[i],"_",j)
+  }
+  data_loop <- do.call(rbind, file_list)
+  colnames(data_loop)= c("dtime","x","y","track")
+  data_loop$id <- paste0("LAAL_",years[i])
+  data1 <- rbind(data1,data_loop)
+  setwd(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/midway_postbreeding_exports/",
+               SPECIES,"/"))
+}
+
+data1 <- data1[!is.na(data1$x) & !is.na(data1$y),]
+data1.sp <- data1[,c("id","dtime","x","y","track")]
+data1.xyt <- data1
+
+
+# Make BFAL data object
+
+SPECIES = "BFAL"
+
+setwd(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/midway_postbreeding_exports/",
+             SPECIES,"/"))
+data2<-data.frame()
+for (i in 1:5){
+  files <- list.files(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/midway_postbreeding_exports/",SPECIES,"/",years[i]), pattern = "csv")
+  setwd(paste0(getwd(),"/",years[i]))
+  file_list <- lapply(files, read.csv, stringsAsFactors = FALSE)
+  for (j in 1:length(file_list)){
+    file_list[[j]]$id <- paste0(years[i],"_",j)
+  }
+  data_loop <- do.call(rbind, file_list)
+  colnames(data_loop)= c("dtime","x","y","track")
+  data_loop$id <- paste0("BFAL_",years[i])
+  data2 <- rbind(data2,data_loop)
+  setwd(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/midway_postbreeding_exports/",
+               SPECIES,"/"))
+}
+
+data2 <- data2[!is.na(data2$x) & !is.na(data2$y),]
+data2.sp <- data2[,c("id","dtime","x","y","track")]
+data2.xyt <- data2
+
+
+# combine into 1 dataframe, preserve id
+
+data.sp <- rbind(data1.sp,data2.sp)
+
+data.spL <- split(data.sp, data.sp$id)
+
+LAAL <-rbind(data.spL[["LAAL_2008"]], data.spL[["LAAL_2009"]], data.spL[["LAAL_2010"]], data.spL[["LAAL_2011"]], data.spL[["LAAL_2012"]])
+BFAL <-rbind(data.spL[["BFAL_2008"]], data.spL[["BFAL_2009"]], data.spL[["BFAL_2010"]], data.spL[["BFAL_2011"]], data.spL[["BFAL_2012"]])
+
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/final_tracks/")
+save(LAAL, file="LAALdata_midway_withTrackID_dtime.Rdata")
+save(BFAL, file="BFALdata_midway_withTrackID_dtime.Rdata")
+
+###################################################
+###################################################
+###################################################
+
+# TERN
+
+###################################################
+###################################################
+###################################################
+
+years <- c("2008","2009","2010","2011","2012")
+
+# Make LAAL data object
+
+SPECIES = "LAAL"
+
+setwd(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/tern_postbreeding_exports/",
+             SPECIES,"/"))
+data1<-data.frame()
+for (i in 1:5){
+  files <- list.files(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/tern_postbreeding_exports/",SPECIES,"/",years[i]), pattern = "csv")
+  setwd(paste0(getwd(),"/",years[i]))
+  file_list <- lapply(files, read.csv, stringsAsFactors = FALSE)
+  for (j in 1:length(file_list)){
+    file_list[[j]]$id <- paste0(years[i],"_",j)
+  }
+  data_loop <- do.call(rbind, file_list)
+  colnames(data_loop)= c("tripid","year","day_gmt","time_gmt","x","y","track")
+  data_loop$id <- paste0("LAAL_",years[i])
+  data1 <- rbind(data1,data_loop)
+  setwd(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/tern_postbreeding_exports/",
+               SPECIES,"/"))
+}
+
+data1 <- data1[!is.na(data1$x) & !is.na(data1$y),]
+data1.sp <- data1[,c("id","day_gmt","time_gmt","x","y","track")]
+data1.xyt <- data1
+
+# Make BFAL data object
+
+SPECIES = "BFAL"
+
+setwd(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/tern_postbreeding_exports/",
+             SPECIES,"/"))
+data2<-data.frame()
+for (i in 1:5){
+  files <- list.files(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/tern_postbreeding_exports/",SPECIES,"/",years[i]), pattern = "csv")
+  setwd(paste0(getwd(),"/",years[i]))
+  file_list <- lapply(files, read.csv, stringsAsFactors = FALSE)
+  for (j in 1:length(file_list)){
+    file_list[[j]]$id <- paste0(years[i],"_",j)
+  }
+  data_loop <- do.call(rbind, file_list)
+  colnames(data_loop)= c("tripid","year","day_gmt","time_gmt","x","y","track")
+  data_loop$id <- paste0("BFAL_",years[i])
+  data2 <- rbind(data2,data_loop)
+  setwd(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/tern_postbreeding_exports/",
+               SPECIES,"/"))
+}
+
+data2 <- data2[!is.na(data2$x) & !is.na(data2$y),]
+data2.sp <- data2[,c("id","day_gmt","time_gmt","x","y","track")]
+data2.xyt <- data2
+
+# combine into 1 dataframe, preserve id
+
+data.sp <- rbind(data1.sp,data2.sp)
+
+data.spL <- split(data.sp, data.sp$id)
+
+LAAL <-rbind(data.spL[["LAAL_2008"]], data.spL[["LAAL_2009"]], data.spL[["LAAL_2010"]], data.spL[["LAAL_2011"]], data.spL[["LAAL_2012"]])
+BFAL <-rbind(data.spL[["BFAL_2008"]], data.spL[["BFAL_2009"]], data.spL[["BFAL_2010"]], data.spL[["BFAL_2011"]], data.spL[["BFAL_2012"]])
+
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/final_tracks/")
+save(LAAL, file="LAALdata_tern_withTrackID_dtime.Rdata")
+save(BFAL, file="BFALdata_tern_withTrackID_dtime.Rdata")
 

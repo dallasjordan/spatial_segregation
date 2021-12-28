@@ -73,7 +73,7 @@ wetdry.resolution <- 432 # sampling rate of Basic Log in seconds, e.g. once ever
 ############################################################################################################
 
 # CSVs loaded in here. Note: each of these csv files were converted from raw .bin files using Lotek 
-# TagTalk software. The converted csv files had to rows above the data, stating "GMT Time Correction = 0" 
+# TagTalk software. The converted csv files had two rows above the data, stating "GMT Time Correction = 0" 
 # and either "Lg00 (Day Log) Log:" or "Lg20 (Basic Log) Log:" depending on the type of log. These two rows
 # have been deleted to make read-in easier. 
 

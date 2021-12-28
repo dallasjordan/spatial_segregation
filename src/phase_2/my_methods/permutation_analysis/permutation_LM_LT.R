@@ -23,6 +23,7 @@
 
 library(adehabitatHR)
 library(dplyr)
+library(sp)
 
 # functions and objects
 calculate_sp_obj_extent <- function(sp_obj, extent_parameter){
@@ -51,32 +52,16 @@ lcea <- "+proj=cea +lat_0=0 +lat_ts=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +uni
 years <- c("2008","2009","2010","2011","2012")
 
 #load tracks in
-load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/publication_figures/LAALdata_midway_withTrackID.Rdata")
-LAALmid <- LAAL
-LAALmid$id <- paste0("lm",LAALmid$track)
-load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/publication_figures/LAALdata_tern_withTrackID.Rdata")
-LAALtern <- LAAL
-LAALtern$id <- paste0("lt",LAALtern$track)
-
-LAAL <- rbind(LAALmid, LAALtern)
-
-load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/publication_figures/BFALdata_midway_withTrackID.Rdata")
-BFALmid <- BFAL
-BFALmid$id <- paste0("bm",BFALmid$track)
-load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/publication_figures/BFALdata_tern_withTrackID.Rdata")
-BFALtern <- BFAL
-BFALtern$id <- paste0("bt",BFALtern$track)
-
-BFAL <- rbind(BFALmid, BFALtern)
-
-all_data <- rbind(LAAL,BFAL)
+load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/final_tracks/all_tracks_master.Rdata")
 lm <- all_data[grep("lm", all_data$id), ]
 lt <- all_data[grep("lt", all_data$id), ]
 bm <- all_data[grep("bm", all_data$id), ]
 bt <- all_data[grep("bt", all_data$id), ]
 
+
+
 # grid parameter calc
-all_data_1<-all_data[,1:3]
+all_data_1<-all_data[,c(1,3,4)]
 sp::coordinates(all_data_1) <- c("x", "y")
 proj4string(all_data_1) <- CRS("+proj=longlat +datum=WGS84 +no_defs") # placeholder
 all_data_1 <- spTransform(all_data_1,lcea)
@@ -84,7 +69,7 @@ grid_input <- calculate_sp_obj_extent(all_data_1,0.1)
 
 # LAAL kernels
 lk <- rbind(lm,lt)
-lk <- lk[,1:3]
+lk <- lk[,c(1,3,4)]
 sp::coordinates(lk) <- c("x", "y")
 proj4string(lk) <- CRS("+proj=longlat +datum=WGS84 +no_defs") # placeholder
 lk <- spTransform(lk,lcea)
@@ -233,20 +218,21 @@ for (i in 1:iter){
   }
 }
 
+# values updated as of Nov 23 2021
 p_valueUDOI_95 <- significance_tallyUDOI_95/iter
 mean_valueUDOI_95 <- mean(resultsUDOI_95_storage)
 sd_valueUDOI_95 <- sd(resultsUDOI_95_storage)
 
 p_valueUDOI_95 # 0
-mean_valueUDOI_95 # 1.286
-sd_valueUDOI_95 # 0.055
+mean_valueUDOI_95 # 1.290
+sd_valueUDOI_95 # 0.054
 
 p_valueUDOI_50 <- significance_tallyUDOI_50/iter
 mean_valueUDOI_50 <- mean(resultsUDOI_50_storage)
 sd_valueUDOI_50 <- sd(resultsUDOI_50_storage)
 
-p_valueUDOI_50 # 0
-mean_valueUDOI_50 # 0.149
+p_valueUDOI_50 # 0.001
+mean_valueUDOI_50 # 0.148
 sd_valueUDOI_50 # 0.025
 
 p_valueBA_95 <- significance_tallyBA_95/iter
@@ -255,15 +241,15 @@ sd_valueBA_95 <- sd(resultsBA_95_storage)
 
 p_valueBA_95 # 0
 mean_valueBA_95 # 0.887
-sd_valueBA_95 # 0.013
+sd_valueBA_95 # 0.012
 
 p_valueBA_50 <- significance_tallyBA_50/iter
 mean_valueBA_50 <- mean(resultsBA_50_storage)
 sd_valueBA_50 <- sd(resultsBA_50_storage)
 
-p_valueBA_50 # 0
-mean_valueBA_50 # 0.374
-sd_valueBA_50 # 0.033
+p_valueBA_50 # 0.001
+mean_valueBA_50 # 0.373
+sd_valueBA_50 # 0.032
 
 
 

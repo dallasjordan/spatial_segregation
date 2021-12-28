@@ -3,8 +3,15 @@
 # June 30 2021
 # Dallas Jordan
 # Last updated : July 24 2021
+  # July 24 2021:
   # I thought this was the script that I needed for my manuscript Figure 2 - it wasn't, this was another version that plotted similar info to Figure 1 script (overalLAALBFAL). 
   # Others in the XXXX_mapping type are not updated with PDCmerc projection. 
+  # Dec 18 2021: 
+  # I'm returning to the XXXX_mapping type to remake the Figure 2(4 panel plot of individual contours) to make colors
+  # consistent with other figures in my manuscript. On July 24, I'm not sure why I thought this wasn't what was needed 
+  # for figure 2: it is the only script that makes those images in LCEA projections
+
+
 
 # adapting overallLAALBFAL_mapping script to plot my rasters and contours for Midway LAAL
 # THERE IS ONE DEPENDENCY IN THIS SCRIPT - MUST LOAD IN THE npac_base Rdata CREATED IN overallLAALBFAL_mapping
@@ -51,7 +58,7 @@ lcea <- "+proj=cea +lat_0=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_d
 
 #load contours, as of Jun 22 they are SpatialPolygonsDataFrame
 # for mac
-  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/individual/midLAAL/master_script_contours/")
+  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/individual/midLAAL/master_script_contours/")
   load("vert95_midLAAL.Rdata")
   load("vert50_midLAAL.Rdata")
   load("vert10_midLAAL.Rdata")
@@ -93,7 +100,7 @@ ml10c <- ml10c %>%
 
 # load rasters
 # for mac
-  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/individual/midLAAL/master_script_rasters/")
+  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/individual/midLAAL/master_script_rasters/")
 # for pc 
   setwd("E:/project_data/spatial_segregation/figures/individual/midLAAL/master_script_rasters/")
 load("midLAAL_ud_vol_rast.Rdata")
@@ -135,7 +142,7 @@ ml10 <- ml %>% filter(n<10.0000001)
 
 # First method, generate a basemap based on the extent and crs of data
 # full resolution (slow)
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/basemap/")
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/basemap/")
 load("npac_base.Rdata")
 
 # for faster test plotting
@@ -198,7 +205,7 @@ figure <- ggplot() +
   # LAAL contours
   geom_sf(data=ml95c, color=("#87CEFF"), fill=alpha("#87CEFF",0.2)) +
   geom_sf(data=ml50c, color=("blue"), fill=alpha("blue",0.6)) +
-  geom_sf(data=ml10c, color=("darkblue"), alpha=0.8, fill="darkblue") +
+  #geom_sf(data=ml10c, color=("darkblue"), alpha=0.8, fill="darkblue") +
   # base map and other parameters
   geom_sf(data=npac_base_i) +
   coord_sf(xlim = c(-4537510, 6536980), ylim = c(1463885, 6141532)) +
@@ -222,7 +229,7 @@ figure <- ggplot() +
 
 figure
 
-path = "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/individual/midLAAL/data_to_load/figure_midLAAL.Rdata"
+path = "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/individual/midLAAL/data_to_load/figure_midLAAL.Rdata"
 save(figure, file=path)
 setwd(path)
 load()

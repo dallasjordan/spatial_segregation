@@ -48,7 +48,7 @@ lcea <- "+proj=cea +lat_0=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_d
 
 #load contours, as of Jun 22 they are SpatialPolygonsDataFrame
 # for mac
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/individual/midLAAL/master_script_contours/")
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/individual/midLAAL/master_script_contours/")
 load("vert95_midLAAL.Rdata")
 load("vert50_midLAAL.Rdata")
 load("vert10_midLAAL.Rdata")
@@ -100,11 +100,11 @@ ml10c$cntr_level <- "10"
 ###############################
 
 # load rasters
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/individual/midLAAL/master_script_rasters/")
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/individual/midLAAL/master_script_rasters/")
 load("midLAAL_ud_vol_rast.Rdata")
 midLAAL_rast <- midLAAL.ud.vol.raster
 image(midLAAL_rast)
-contour(midLAAL_rast,levels=c(95,50,10),add=T)
+contour(midLAAL_rast,levels=c(95,50),add=T)
 
 ### LAAL ###
 
@@ -140,7 +140,7 @@ ml10 <- ml %>% filter(n<10.0000001)
 
 # First method, generate a basemap based on the extent and crs of data
 # full resolution (slow)
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/figures/basemap/")
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/basemap/")
 load("npac_base.Rdata")
 
 # for faster test plotting
@@ -150,8 +150,12 @@ load("npac_base_res.Rdata")
 load("npac_base_i.Rdata")
 
 # second method
-# on pc, loading in data object from overallLAALBFAL_mapping to get the same proportions as my other figure for this manuscript
+# loading in data object from overallLAALBFAL_mapping to get the same proportions as my other figure for this manuscript
+    # on pc: 
     setwd("E:/project_data/spatial_segregation/figures/allLAAL_allBFAL/master_script_rasters/")
+    load("allBFAL_ud_vol_rast.Rdata")
+    # on mac: 
+    setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/allLAAL_allBFAL/master_script_rasters/")
     load("allBFAL_ud_vol_rast.Rdata")
     allBFAL_rast <- allBFAL.ud.vol.raster
     allBFAL.sp <- as(allBFAL_rast, "SpatialPixelsDataFrame")
@@ -197,7 +201,6 @@ figure <- ggplot() +
   # LAAL contours
   geom_sf(data=ml95c, aes(fill=cntr_level)) +
   geom_sf(data=ml50c, aes(fill=cntr_level)) +
-  geom_sf(data=ml10c, aes(fill=cntr_level)) +
   # base map and other parameters
   geom_sf(data=npac_base_i) +
   viridis::scale_fill_viridis(direction = -1, discrete=T)+

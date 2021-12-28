@@ -422,7 +422,7 @@ save(allBFAL, file=paste0(path,"allBFAL.Rdata"))
 save(midLAAL, file=paste0(path,"midLAAL.Rdata"))
 save(midBFAL, file=paste0(path,"midBFAL.Rdata"))
 save(ternLAAL, file=paste0(path,"ternLAAL.Rdata"))
-save(ternBFAL, file=paste0(path,"ternBFAAL.Rdata"))
+save(ternBFAL, file=paste0(path,"ternBFAL.Rdata"))
 
 ### load in files ###
 
@@ -837,7 +837,7 @@ for (i in 1:length(file_list)){
       # repeat! simple. 
   
   # New take: 
-      # 
+      # see permutation_XX_XX.R scripts for track-ID permutation
   
   # Begin permutation test
   

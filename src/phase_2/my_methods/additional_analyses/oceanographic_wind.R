@@ -1,9 +1,9 @@
 # Script to do oceanographic analysis of points and create boxplots
 
 # Tasks for today 
-  # download 1 month of wind data, get that working
-  # test with data for that month
-  # create a boxplot of that month
+# download 1 month of wind data, get that working
+# test with data for that month
+# create a boxplot of that month
 
 
 # Testing from Tziporah
@@ -111,14 +111,15 @@ setwd(nc_dir)
 
 # for mac
 # setwd("/Volumes/Samsung_T5/project_data/spatial_segregation/data/oceanographic")
-setwd("/Users/dallasjordan/Desktop/ocean_data/2008/jan/left")
-
-chla_files <- list.files(pattern='*.nc') 
+setwd("/Users/dallasjordan/Desktop/ocean_data/2008/jan2/left")
+wind_files_left <- list.files(pattern='*.nc') 
+setwd("/Users/dallasjordan/Desktop/ocean_data/2008/jan2/right")
+wind_files_right <- list.files(pattern='*.nc')
 
 # list of dates that you have
-
-for (i in 1:length(chla_files)) {
-  mi<-read_ncdf(chla_files[i])
+#can just read in left to get times, since they are the same times in both files
+for (i in 1:length(wind_files_left)) {
+  mi<-read_ncdf(wind_files_left[i])
   times <- st_get_dimension_values(mi, "time")
   if (i==1) {
     times_all<-times
@@ -135,25 +136,94 @@ all_times_num<-as.numeric(unlist(all_times))
 # download 120 to 180 and -180 to -120, and for latitude both 0 to 75
 
 
-# Isolate chla for left of antimeridian -----------------------------------
+# Isolate wind for left of antimeridian -----------------------------------
 
-# chla left
-#chla_files_left <- chla_files[grep("left",chla_files)]
-chla_files_left <- chla_files
-for (i in 1:length(chla_files_left)) {
-  mi<-read_ncdf(chla_files_left[i])
-  chla_left.df= raster::as.data.frame(mi, xy = TRUE)
+# U-component, 2 m 
+for (i in 1:length(wind_files_left)) {
+  mi<-read_ncdf(wind_files_left[i])
+  wind_u<-as(mi[1,,,], "Raster")
+  wind_u.df= raster::as.data.frame(wind_u, xy = TRUE)
   if (i==1) {
-    chla_left<-chla_left.df
+    wind_U2M<-wind_u.df
   }else{
-    chla_left<-rbind(chla_left,chla_left.df)
+    wind_U2M<-cbind(wind_U2M,wind_u.df[, -c(1,2)])
+  }
+}
+
+# V-component, 2 m 
+for (i in 1:length(wind_files_left)) {
+  mi<-read_ncdf(wind_files_left[i])
+  wind_v<-as(mi[3,,,], "Raster")
+  wind_v.df= raster::as.data.frame(wind_v, xy = TRUE)
+  if (i==1) {
+    wind_V2M<-wind_v.df
+  }else{
+    wind_V2M<-cbind(wind_V2M,wind_v.df[, -c(1,2)])
   }
 }
 
 
-# Isolate chla for right of antimeridian ----------------------------------
+# U-component, 10 m 
+for (i in 1:length(wind_files_left)) {
+  mi<-read_ncdf(wind_files_left[i])
+  wind_u<-as(mi[6,,,], "Raster")
+  wind_u.df= raster::as.data.frame(wind_u, xy = TRUE)
+  if (i==1) {
+    wind_U10M<-wind_u.df
+  }else{
+    wind_U10M<-cbind(wind_U10M,wind_u.df[, -c(1,2)])
+  }
+}
 
-# chla right
+# V-component, 10 m 
+for (i in 1:length(wind_files_left)) {
+  mi<-read_ncdf(wind_files_left[i])
+  wind_v<-as(mi[4,,,], "Raster")
+  wind_v.df= raster::as.data.frame(wind_v, xy = TRUE)
+  if (i==1) {
+    wind_V10M<-wind_v.df
+  }else{
+    wind_V10M<-cbind(wind_V10M,wind_v.df[, -c(1,2)])
+  }
+}
+
+
+# U-component, 50 m 
+for (i in 1:length(wind_files_left)) {
+  mi<-read_ncdf(wind_files_left[i])
+  wind_u<-as(mi[5,,,], "Raster")
+  wind_u.df= raster::as.data.frame(wind_u, xy = TRUE)
+  if (i==1) {
+    wind_U50M<-wind_u.df
+  }else{
+    wind_U50M<-cbind(wind_U50M,wind_u.df[, -c(1,2)])
+  }
+}
+
+# V-component, 50 m 
+for (i in 1:length(wind_files_left)) {
+  mi<-read_ncdf(wind_files_left[i])
+  wind_v<-as(mi[2,,,], "Raster")
+  wind_v.df= raster::as.data.frame(wind_v, xy = TRUE)
+  if (i==1) {
+    wind_V50M<-wind_v.df
+  }else{
+    wind_V50M<-cbind(wind_V50M,wind_v.df[, -c(1,2)])
+  }
+}
+
+
+
+
+
+
+
+
+u_stack2M<-rasterFromXYZ(wind_U2M)
+
+# Isolate wind for right of antimeridian ----------------------------------
+
+# wind right
 chla_files_right <- chla_files[grep("right",chla_files)]
 for (i in 1:length(chla_files_right)) {
   mi<-read_ncdf(chla_files_right[i])
