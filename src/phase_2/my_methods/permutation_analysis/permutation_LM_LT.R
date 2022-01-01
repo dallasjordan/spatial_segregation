@@ -52,13 +52,19 @@ lcea <- "+proj=cea +lat_0=0 +lat_ts=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +uni
 years <- c("2008","2009","2010","2011","2012")
 
 #load tracks in
+# for mac
 load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/final_tracks/all_tracks_master.Rdata")
 lm <- all_data[grep("lm", all_data$id), ]
 lt <- all_data[grep("lt", all_data$id), ]
 bm <- all_data[grep("bm", all_data$id), ]
 bt <- all_data[grep("bt", all_data$id), ]
 
-
+# for pc
+load("G:/Other computers/My MacBook Pro/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/final_tracks/all_tracks_master.Rdata")
+lm <- all_data[grep("lm", all_data$id), ]
+lt <- all_data[grep("lt", all_data$id), ]
+bm <- all_data[grep("bm", all_data$id), ]
+bt <- all_data[grep("bt", all_data$id), ]
 
 # grid parameter calc
 all_data_1<-all_data[,c(1,3,4)]
@@ -78,9 +84,15 @@ grid_input <- calculate_sp_obj_extent(lk,0.1)
 a_ud <-  kernelUD(lk, grid=grid_input,same4all=T,extent=0.1,h=150000)
 image(a_ud)
 
-path <- "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/permutation_tests/test_stats/"
+# for mac
+path <- "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/pre_defense/permutation_tests/test_stats/"
 setwd(path)
 load("all_test_stats.RData") # generated from master_script
+
+# for pc
+path <- "G:/Other computers/My MacBook Pro/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/pre_defense/permutation_tests/test_stats/"
+setwd(path)
+load("all_test_stats.RData") 
 
 # Permute lm lt -----------------------------------------------------------
 
