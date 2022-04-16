@@ -46,7 +46,9 @@ sf::sf_use_s2(FALSE)
 
 lcea <- "+proj=cea +lat_0=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs"
 aeqd = "+proj=aeqd +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
-load("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3/basemap_figure3_v2")
+eqc <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=-180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+pdc_mercator_proj<-"+proj=merc +lon_0=150 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+load("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3/figure3_old/basemap_figure3_v2")
 
 # import points
     # for mac
@@ -92,87 +94,81 @@ npac_base_res <- npac_base_res %>%
 
 # Contours in 'sf'
 ml95c <- st_as_sf(vert95_midLAAL) # 95th UD Contour
-ml95c <- ml95c %>% 
-  st_transform(crs = 4326) %>% # transform to WGS84.
-  st_wrap_dateline() %>% # wrap around the dateline
-  st_shift_longitude() %>%  
-  st_union(by_feature = TRUE) %>% 
-  st_transform(crs = 3832)
+# One example left for reference of the old way I used to transform these:
+# ml95c <- ml95c %>%
+#   st_transform(crs = 4326) %>% # transform to WGS84.
+#   st_wrap_dateline() %>% # wrap around the dateline
+#   st_shift_longitude() %>%
+#   st_union(by_feature = TRUE) %>%
+#   st_transform(crs = 3832)
+
+ml95c <- ml95c %>%
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
 
 ml50c <- st_as_sf(vert50_midLAAL) # 50th UD Contour
 ml50c <- ml50c %>% 
-  st_transform(crs = 4326) %>% # transform to WGS84.
-  st_wrap_dateline() %>% # wrap around the dateline
-  st_shift_longitude() %>%  
-  st_union(by_feature = TRUE) %>% 
-  st_transform(crs = 3832)
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
 
 tl95c <- st_as_sf(vert95_ternLAAL) # 95th UD Contour
 tl95c <- tl95c %>% 
-  st_transform(crs = 4326) %>% # transform to WGS84.
-  st_wrap_dateline() %>% # wrap around the dateline
-  st_shift_longitude() %>%  
-  st_union(by_feature = TRUE) %>% 
-  st_transform(crs = 3832)
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
 
 tl50c <- st_as_sf(vert50_ternLAAL) # 50th UD Contour
 tl50c <- tl50c %>% 
-  st_transform(crs = 4326) %>% # transform to WGS84.
-  st_wrap_dateline() %>% # wrap around the dateline
-  st_shift_longitude() %>%  
-  st_union(by_feature = TRUE) %>% 
-  st_transform(crs = 3832)
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
 
 mb95c <- st_as_sf(vert95_midBFAL) # 95th UD Contour
 mb95c <- mb95c %>% 
-  st_transform(crs = 4326) %>% # transform to WGS84.
-  st_wrap_dateline() %>% # wrap around the dateline
-  st_shift_longitude() %>%  
-  st_union(by_feature = TRUE) %>% 
-  st_transform(crs = 3832)
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
 
 mb50c <- st_as_sf(vert50_midBFAL) # 50th UD Contour
 mb50c <- mb50c %>% 
-  st_transform(crs = 4326) %>% # transform to WGS84.
-  st_wrap_dateline() %>% # wrap around the dateline
-  st_shift_longitude() %>%  
-  st_union(by_feature = TRUE) %>% 
-  st_transform(crs = 3832)
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
 
 tb95c <- st_as_sf(vert95_ternBFAL) # 95th UD Contour
 tb95c <- tb95c %>% 
-  st_transform(crs = 4326) %>% # transform to WGS84.
-  st_wrap_dateline() %>% # wrap around the dateline
-  st_shift_longitude() %>%  
-  st_union(by_feature = TRUE) %>% 
-  st_transform(crs = 3832)
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
 
 tb50c <- st_as_sf(vert50_ternBFAL) # 50th UD Contour
 tb50c <- tb50c %>% 
-  st_transform(crs = 4326) %>% # transform to WGS84.
-  st_wrap_dateline() %>% # wrap around the dateline
-  st_shift_longitude() %>%  
-  st_union(by_feature = TRUE) %>% 
-  st_transform(crs = 3832)
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
 
 # Column 1 - original points with contours overlapping  -----------------------------------------------
 # Midway LAAL x Tern LAAL 
 lm_points = st_as_sf(lm, coords = c("x","y"), remove = FALSE, crs=4326)
 lm_points <- lm_points %>%
-  st_transform(crs=3349)
+  st_transform(eqc)
 
 lt_points = st_as_sf(lt, coords = c("x","y"), remove = FALSE, crs=4326)
 lt_points <- lt_points %>%
-  st_transform(crs=3349)
+  st_transform(eqc)
 
 midLAALternLAAL <- ggplot() + 
   # base map and other parameters
   #geom_sf(data=lm_points, color="orange",size=0.005)+
   #geom_sf(data=lt_points, color="firebrick",size=0.005)+
-  geom_sf(data=ml95c, color="orange",fill="orange",alpha=0.5)+
-  geom_sf(data=tl95c, color="firebrick",fill="firebrick",alpha=0.5)+
-  geom_sf(data=CRW_ml95c, color=NA,alpha=0)+
-  geom_sf(data=npac_base_i, fill="grey60")
+  geom_sf(data=ml95c, color="chocolate2",fill="chocolate2",alpha=0.5,size=1.25)+
+  geom_sf(data=tl95c, color="darkred",fill="darkred",alpha=0.5,size=1.25)+
+  #geom_sf(data=CRW_ml95c, color=NA,alpha=0)+
+  geom_sf(data=npac_base_res, fill="grey60")+
+  theme_bw()+
+  coord_sf(expand=F)
   #coord_sf(xlim = c(-10246822, 4164347), ylim = c(-6563332, 15190864),expand=F)
 midLAALternLAAL
 
@@ -230,7 +226,7 @@ ternLAALternBFAL
 
 # Midway LAAL x Tern LAAL
 # Randomized points: 
-############ now run other script to get xxx_iter_avg ############
+############ now run other script to get xxx_iter_avg, can go to Randomized contours line after ############
 
 mid_iter_points <- resample_all_tracks[mid_nums]
 tern_iter_points <- resample_all_tracks[tern_nums]
@@ -248,38 +244,36 @@ tern_iter_points <- tern_iter_points %>%
 
 # Randomized contours: 
 ml95cr <- getverticeshr(mid_iter_avg)
-ml95cr <- st_as_sf(ml95cr ) # 95th UD Contour
+ml95cr <- st_as_sf(ml95cr) # 95th UD Contour
 ml95cr <- ml95cr %>% 
-  st_transform(crs = 4326) %>% # transform to WGS84.
-  st_wrap_dateline() %>% # wrap around the dateline
-  st_shift_longitude() %>%  
-  st_union(by_feature = TRUE) %>% 
-  st_transform(crs = 3349)
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
 
 tl95cr <- getverticeshr(tern_iter_avg)
-tl95cr <- st_as_sf(tl95cr ) # 95th UD Contour
+tl95cr <- st_as_sf(tl95cr) # 95th UD Contour
 tl95cr <- tl95cr %>% 
-  st_transform(crs = 4326) %>% # transform to WGS84.
-  st_wrap_dateline() %>% # wrap around the dateline
-  st_shift_longitude() %>%  
-  st_union(by_feature = TRUE) %>% 
-  st_transform(crs = 3349)
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
 
 midLAALternLAALtrackpermrandom <- ggplot() + 
   # base map and other parameters
   #geom_sf(data=mid_iter_points, color="orange",size=0.005)+
   #geom_sf(data=tern_iter_points, color="firebrick",size=0.005)+
-  geom_sf(data=ml95cr, color="orange",fill="orange",alpha=0.5)+
-  geom_sf(data=tl95cr, color="firebrick",fill="firebrick",alpha=0.5)+
-  geom_sf(data=CRW_ml95c, color=NA,alpha=0)+
-  geom_sf(data=npac_base_i, fill="grey60")
+  geom_sf(data=ml95cr, color="chocolate2",fill="chocolate2",alpha=0.5,size=1.25)+
+  geom_sf(data=tl95cr, color="darkred",fill="darkred",alpha=0.5,size=1.25)+
+  #geom_sf(data=CRW_ml95c, color=NA,alpha=0)+
+  geom_sf(data=npac_base_res, fill="grey60")+
+  theme_bw()+
+  coord_sf(expand=F)
   #coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 13000000),expand=F)
 midLAALternLAALtrackpermrandom
 
 # save this so you don't save to re-generate from scripts
-save(midLAALternLAALtrackpermrandom,file="2a_v2.Rdata")
+save(midLAALternLAALtrackpermrandom,file="2a_v4.Rdata")
 load("E:/spatial_segregation/src/phase_2/my_methods/figure_scripts/figure3/2a.Rdata")
-load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3/2a.Rdata")
+load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3/figure3_old/2a.Rdata")
 midLAALternLAALtrackpermrandom
 
 # Midway BFAL x Tern BFAL
@@ -389,13 +383,14 @@ ternLAALternBFALtrackpermrandom
 # import points from CRW_sim_allpoints.csv. Pick an iteration for each class you need. Convert those to an sp dataframe of points. Change 
 # the projection. Create contours using getverticeshr, which will require running kernelUD on the spdf. 
 
-CRW_sim_allpoints <- read.csv("G:/Other computers/My MacBook Pro/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/overlap_sensitivity/julia_simulations/CRW_permutation_results/real_data/CRW_sim_allpoints.csv")
-CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/overlap_sensitivity/julia_simulations/CRW_permutation_results/real_data/CRW_sim_allpoints.csv")
+CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/overlap_sensitivity/one_iteration_of_CRW_pts.csv")
+#CRW_sim_allpoints <- read.csv("G:/Other computers/My MacBook Pro/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/overlap_sensitivity/julia_simulations/CRW_permutation_results/real_data/CRW_pts.csv")
+#CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/overlap_sensitivity/julia_simulations/CRW_permutation_results/real_data/CRW_pts.csv")
 
 # Midway LAAL x Tern LAAL
   # Midway LAAL
       c3a_midLAAL_points <- CRW_sim_allpoints %>% filter(grepl('LAAL_MID', Animal_ID))
-      c3a_midLAAL_points <- c3a_midLAAL_points %>% filter(iter==1)
+      c3a_midLAAL_points <- c3a_midLAAL_points %>% filter(iter==34)
       # over_pole <- function(x){
       #   if_else(x>6363885, x-(x-6363885),x)
       # }
@@ -408,17 +403,17 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       # c3a_midLAAL_points$Latitude <- over_pole(c3a_midLAAL_points$Latitude, c3a_midLAAL_points$Longitude)
       
       # fix latitude to cap out at 90 N
-      max_lat <- function(x){
-        if_else(x>6339452,6339452,x) 
-      }
-      c3a_midLAAL_points$Latitude <- max_lat(c3a_midLAAL_points$Latitude)
-      ind <- with(c3a_midLAAL_points, (Latitude == 6339452))
-      c3a_midLAAL_points <- c3a_midLAAL_points[!ind,]
+      # max_lat <- function(x){
+      #   if_else(x>6339452,6339452,x) 
+      # }
+      # c3a_midLAAL_points$Latitude <- max_lat(c3a_midLAAL_points$Latitude)
+      # ind <- with(c3a_midLAAL_points, (Latitude == 6339452))
+      # c3a_midLAAL_points <- c3a_midLAAL_points[!ind,]
       
       #convert to sf for easy ggplot2 plotting
-      c3a_midLAAL_points_sf <- st_as_sf(c3a_midLAAL_points, coords = c("Longitude","Latitude"), remove = TRUE, na.fail = TRUE, crs=lcea)
-      c3a_midLAAL_points_sf <- c3a_midLAAL_points_sf %>%
-        st_transform(3349)
+      c3a_midLAAL_points_sf <- st_as_sf(c3a_midLAAL_points, coords = c("Longitude","Latitude"), remove = TRUE, na.fail = TRUE, crs=pdc_mercator_proj)
+      # c3a_midLAAL_points_sf <- c3a_midLAAL_points_sf %>%
+      #   st_transform(3349)
       # 
       # g=st_sfc(st_point(c(-425223.3,6303822)),crs=lcea)
       # g <- g %>% st_transform(crs=3349)
@@ -435,14 +430,14 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       
       c3a_midLAAL_points <- c3a_midLAAL_points[,c(2,3,4)]
       sp::coordinates(c3a_midLAAL_points) <- c("Longitude", "Latitude")
-      proj4string(c3a_midLAAL_points) <- CRS(lcea) # placeholder
-      c3a_midLAAL_points <- spTransform(c3a_midLAAL_points,CRS("+init=epsg:3349"))
+      #proj4string(c3a_midLAAL_points) <- CRS(lcea) # placeholder
+      #c3a_midLAAL_points <- spTransform(c3a_midLAAL_points,CRS("+init=epsg:3349"))
       grid_input <- calculate_sp_obj_extent(c3a_midLAAL_points,0.1)
       
       c3a_midLAAL_ud <-  kernelUD(c3a_midLAAL_points, grid=grid_input,same4all=T,extent=0.1,h=150000)
       
       # average into 1 UD
-      mid_iter_holder <- numeric(length = 2280)
+      mid_iter_holder <- numeric(length = 1333)
       for (d in 1:length(c3a_midLAAL_ud)) {
         c3a_midLAAL_ud[[d]]@data$ud[is.na(c3a_midLAAL_ud[[d]]@data$ud)] <- 0
         add <- c3a_midLAAL_ud[[d]]@data$ud
@@ -459,7 +454,14 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       CRW_ml95c <- getverticeshr.estUD(mid_iter_avg,percent = 95)
       # take SpatialPolygonsDataframe, reproject...this is where it fails
       CRW_ml95c  <- st_as_sf(CRW_ml95c)
+      st_crs(CRW_ml95c) <- 3349
       st_is_valid(CRW_ml95c)
+      CRW_ml95c <- CRW_ml95c %>%
+        st_transform(4326) %>%
+        st_shift_longitude() %>%
+        st_transform(eqc)
+      
+      
       # sf2 <- st_transform(CRW_ml95c, crs = "+proj=longlat +datum=WGS84" )
       # st_is_valid(sf2, reason=T)
       # sf2 <- st_make_valid(sf2$geometry)
@@ -485,27 +487,27 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       
   # Tern LAAL
       c3a_ternLAAL_points <- CRW_sim_allpoints %>% filter(grepl('LAAL_TERN', Animal_ID))
-      c3a_ternLAAL_points <- c3a_ternLAAL_points %>% filter(iter==1) 
+      c3a_ternLAAL_points <- c3a_ternLAAL_points %>% filter(iter==34) 
     
-      c3a_ternLAAL_points$Latitude <- max_lat(c3a_ternLAAL_points$Latitude)
-      ind <- with(c3a_ternLAAL_points, (Latitude == 6339452))
-      c3a_ternLAAL_points <- c3a_ternLAAL_points[!ind,]
+      # c3a_ternLAAL_points$Latitude <- max_lat(c3a_ternLAAL_points$Latitude)
+      # ind <- with(c3a_ternLAAL_points, (Latitude == 6339452))
+      # c3a_ternLAAL_points <- c3a_ternLAAL_points[!ind,]
       
       #convert to sf for easy ggplot2 plotting
-      c3a_ternLAAL_points_sf <- st_as_sf(c3a_ternLAAL_points, coords = c("Longitude","Latitude"), remove = TRUE, na.fail = TRUE, crs=lcea)
-      c3a_ternLAAL_points_sf <- c3a_ternLAAL_points_sf %>%
-        st_transform(3349)
+      c3a_ternLAAL_points_sf <- st_as_sf(c3a_ternLAAL_points, coords = c("Longitude","Latitude"), remove = TRUE, na.fail = TRUE, crs=pdc_mercator_proj)
+      # c3a_ternLAAL_points_sf <- c3a_ternLAAL_points_sf %>%
+      #   st_transform(3349)
       
       c3a_ternLAAL_points <- c3a_ternLAAL_points[,c(2,3,4)]
       sp::coordinates(c3a_ternLAAL_points) <- c("Longitude", "Latitude")
-      proj4string(c3a_ternLAAL_points) <- CRS(lcea) # placeholder
-      c3a_ternLAAL_points <- spTransform(c3a_ternLAAL_points,CRS("+init=epsg:3349"))
+      # proj4string(c3a_ternLAAL_points) <- CRS(lcea) # placeholder
+      # c3a_ternLAAL_points <- spTransform(c3a_ternLAAL_points,CRS("+init=epsg:3349"))
       grid_input <- calculate_sp_obj_extent(c3a_ternLAAL_points,0.1)
       
       c3a_ternLAAL_ud <-  kernelUD(c3a_ternLAAL_points, grid=grid_input,same4all=T,extent=0.1,h=150000)
       
       # average into 1 UD
-      tern_iter_holder <- numeric(length = 1710)
+      tern_iter_holder <- numeric(length = 1472)
       for (d in 1:length(c3a_ternLAAL_ud)) {
         c3a_ternLAAL_ud[[d]]@data$ud[is.na(c3a_ternLAAL_ud[[d]]@data$ud)] <- 0
         add <- c3a_ternLAAL_ud[[d]]@data$ud
@@ -522,33 +524,36 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       CRW_tl95c <- getverticeshr(tern_iter_avg,percent = 95)
       
       CRW_tl95c  <- st_as_sf(CRW_tl95c)
+      st_crs(CRW_tl95c) <- 3349
       st_is_valid(CRW_tl95c)
       
+      CRW_tl95c  <- CRW_tl95c %>%
+        st_transform(4326) %>%
+        st_shift_longitude() %>%
+        st_transform(eqc)
       
-      # CRW_tl95c  <- CRW_tl95c %>%
-      #   st_transform(crs = 4326) %>% # transform to WGS84.
-      #   st_wrap_dateline() %>% # wrap around the dateline
-      #   st_shift_longitude() %>%
-      #   st_union(by_feature = TRUE) %>%
-      #   st_transform(crs = 3832)
       # 
       # plot c3a
-      npac_base_i <- ptolemy::extract_gshhg(c3a_ternLAAL_points_sf, resolution = "c", epsg = NULL, buffer = 5000,
+      npac_base_i <- ptolemy::extract_gshhg(CRW_ml95c, resolution = "c", epsg = NULL, buffer = 5000,
                                             simplify = FALSE) # using an sf object to set the appropriate boundary box and CRS
       save(npac_base_i,file="basemap_figure3_v2")
-      load("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3/basemap_figure3_v2")
+      load("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3/figure3_old/basemap_figure3_v2")
       midLAALternLAALCRWrandom <- ggplot() + 
         # base map and other parameters
         #geom_sf(data=c3a_midLAAL_points_sf, color="orange",size=0.005)+
         #geom_sf(data=c3a_ternLAAL_points_sf, color="firebrick",size=0.005)+
-        geom_sf(data=CRW_ml95c, color="orange",fill="orange",alpha=0.5)+
-        geom_sf(data=CRW_tl95c, color="firebrick",fill="firebrick",alpha=0.5)+
-        geom_sf(data=npac_base_i, fill="grey60")
-        #coord_sf(xlim = c(-8000000, 8000000), ylim = c(0, 13000000),expand=F)
+        geom_sf(data=CRW_ml95c, color="chocolate2",fill="chocolate2",alpha=0.5, size=1.25)+
+        geom_sf(data=CRW_tl95c, color="darkred",fill="darkred",alpha=0.5, size=1.25)+
+        #geom_sf(data=land_mask, fill="grey60")+
+        geom_sf(data=npac_base_res,fill="grey60")+
+        theme_bw()+
+        coord_sf(expand=F)
+        # coord_sf(expand=F)
       midLAALternLAALCRWrandom
       
   setwd("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3")
-  save(midLAALternLAALCRWrandom,file="3a_v2.Rdata")
+  save(midLAALternLAALCRWrandom,file="3a_v4.Rdata")
+      load("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3/3a_v3.Rdata")
       load("E:/spatial_segregation/src/phase_2/my_methods/figure_scripts/figure3/3a.Rdata")
       midLAALternLAALCRWrandom
       
@@ -559,7 +564,7 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       c3b_midBFAL_points <- c3b_midBFAL_points %>% filter(iter==1) 
       c3b_midBFAL_points <- c3b_midBFAL_points[,c(2,3,4)]
       
-      c3b_midBFAL_sf = st_as_sf(c3b_midBFAL_points, coords = c("Longitude","Latitude"), remove = FALSE)
+      c3b_midBFAL_sf = st_as_sf(c3b_midBFAL_points, coords = c("Longitude","Latitude"), remove = TRUE, na.fail = TRUE, crs=pdc_mercator_proj)
       
       sp::coordinates(c3b_midBFAL_points) <- c("Longitude", "Latitude")
       grid_input <- calculate_sp_obj_extent(c3b_midBFAL_points,0.1)
@@ -567,7 +572,7 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       c3b_midBFAL_ud <-  kernelUD(c3b_midBFAL_points, grid=grid_input,same4all=T,extent=0.1,h=150000)
       
       # average into 1 UD
-      mid_iter_holder <- numeric(length = 1598)
+      mid_iter_holder <- numeric(length = 1334)
       for (d in 1:length(c3b_midBFAL_ud)) {
         c3b_midBFAL_ud[[d]]@data$ud[is.na(c3b_midBFAL_ud[[d]]@data$ud)] <- 0
         add <- c3b_midBFAL_ud[[d]]@data$ud
@@ -583,6 +588,9 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       image(mid_iter_avg)
       CRW_mb95c <- getverticeshr(mid_iter_avg,percent = 95)
       CRW_mb95c  <- st_as_sf(CRW_mb95c ) # 95th UD Contour
+      st_crs(CRW_mb95c) <- 3349
+      st_is_valid(CRW_mb95c)
+      
       # CRW_ml95c  <- CRW_ml95c %>% 
       #   st_set_crs(3832) %>%
       #   st_transform(crs = 4326) %>% # transform to WGS84.
@@ -596,7 +604,7 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       c3b_ternBFAL_points <- c3b_ternBFAL_points %>% filter(iter==1) 
       c3b_ternBFAL_points <- c3b_ternBFAL_points[,c(2,3,4)]
       
-      c3b_ternBFAL_sf = st_as_sf(c3b_ternBFAL_points, coords = c("Longitude","Latitude"), remove = FALSE)
+      c3b_ternBFAL_sf = st_as_sf(c3b_ternBFAL_points, coords = c("Longitude","Latitude"), remove = TRUE, na.fail = TRUE, crs=pdc_mercator_proj)
       
       
       sp::coordinates(c3b_ternBFAL_points) <- c("Longitude", "Latitude")
@@ -605,7 +613,7 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       c3b_ternBFAL_ud <-  kernelUD(c3b_ternBFAL_points, grid=grid_input,same4all=T,extent=0.1,h=150000)
       
       # average into 1 UD
-      tern_iter_holder <- numeric(length = 3240)
+      tern_iter_holder <- numeric(length = 1551)
       for (d in 1:length(c3b_ternBFAL_ud)) {
         c3b_ternBFAL_ud[[d]]@data$ud[is.na(c3b_ternBFAL_ud[[d]]@data$ud)] <- 0
         add <- c3b_ternBFAL_ud[[d]]@data$ud
@@ -621,6 +629,9 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       image(tern_iter_avg)
       CRW_tb95c <- getverticeshr(tern_iter_avg,percent = 95)
       CRW_tb95c  <- st_as_sf(CRW_tb95c ) # 95th UD Contour
+      st_crs(CRW_tb95c) <- 3349
+      st_is_valid(CRW_tb95c)
+      
       # CRW_tl95c  <- CRW_tl95c %>% 
       #   st_set_crs(3832) %>%
       #   st_transform(crs = 4326) %>% # transform to WGS84.
@@ -632,17 +643,19 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       # plot c3b
       midBFALternBFALCRWrandom<- ggplot() + 
         # base map and other parameters
-        geom_sf(data=c3b_midBFAL_sf, color="orange",size=0.005)+
-        geom_sf(data=c3b_ternBFAL_sf, color="firebrick",size=0.005)+
+        #geom_sf(data=c3b_midBFAL_sf, color="orange",size=0.005)+
+        #geom_sf(data=c3b_ternBFAL_sf, color="firebrick",size=0.005)+
         geom_sf(data=CRW_mb95c, color="orange",fill="orange",alpha=0.5)+
         geom_sf(data=CRW_tb95c, color="firebrick",fill="firebrick",alpha=0.5)+
-      #geom_sf(data=npac_base_res, fill="grey60")
-        coord_sf(xlim = c(-9e06, 9e06), ylim = c(-5.5e06, 1.25e07),expand=F)
+        geom_sf(data=land_mask, fill="grey60")+
+        coord_sf(expand=F)
       midBFALternBFALCRWrandom
       
-      save(midBFALternBFALCRWrandom,file="3b.Rdata")
-      load("E:/spatial_segregation/src/phase_2/my_methods/figure_scripts/figure3/3b.Rdata")
-      midBFALternBFALCRWrandom
+      setwd("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3")
+      save(midBFALternBFALCRWrandom,file="3b_v3.Rdata")
+        load("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3/3b_v3.Rdata")
+        load("E:/spatial_segregation/src/phase_2/my_methods/figure_scripts/figure3/3b.Rdata")
+        midBFALternBFALCRWrandom
       
 # Tern LAAL x Tern BFAL
   # Tern LAAL
@@ -658,7 +671,7 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       c3c_ternLAAL_ud <-  kernelUD(c3c_ternLAAL_points, grid=grid_input,same4all=T,extent=0.1,h=150000)
       
       # average into 1 UD
-      mid_iter_holder <- numeric(length = 3304)
+      mid_iter_holder <- numeric(length = 1551)
       for (d in 1:length(c3c_ternLAAL_ud)) {
         c3c_ternLAAL_ud[[d]]@data$ud[is.na(c3c_ternLAAL_ud[[d]]@data$ud)] <- 0
         add <- c3c_ternLAAL_ud[[d]]@data$ud
@@ -674,6 +687,8 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       image(mid_iter_avg)
       CRW_tl95c <- getverticeshr(mid_iter_avg,percent = 95)
       CRW_tl95c  <- st_as_sf(CRW_tl95c ) # 95th UD Contour
+      st_crs(CRW_tl95c) <- 3349
+      st_is_valid(CRW_tl95c)
       # CRW_ml95c  <- CRW_ml95c %>% 
       #   st_set_crs(3832) %>%
       #   st_transform(crs = 4326) %>% # transform to WGS84.
@@ -696,7 +711,7 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       c3c_ternBFAL_ud <-  kernelUD(c3c_ternBFAL_points, grid=grid_input,same4all=T,extent=0.1,h=150000)
       
       # average into 1 UD
-      tern_iter_holder <- numeric(length = 3240)
+      tern_iter_holder <- numeric(length = 1551)
       for (d in 1:length(c3c_ternBFAL_ud)) {
         c3c_ternBFAL_ud[[d]]@data$ud[is.na(c3c_ternBFAL_ud[[d]]@data$ud)] <- 0
         add <- c3c_ternBFAL_ud[[d]]@data$ud
@@ -712,6 +727,8 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       image(tern_iter_avg)
       CRW_tb95c <- getverticeshr(tern_iter_avg,percent = 95)
       CRW_tb95c  <- st_as_sf(CRW_tb95c ) # 95th UD Contour
+      st_crs(CRW_tb95c) <- 3349
+      st_is_valid(CRW_tb95c)
       # CRW_tl95c  <- CRW_tl95c %>% 
       #   st_set_crs(3832) %>%
       #   st_transform(crs = 4326) %>% # transform to WGS84.
@@ -723,18 +740,19 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       # plot c3c
       ternLAALternBFALCRWrandom<- ggplot() + 
         # base map and other parameters
-        geom_sf(data=c3c_ternLAAL_sf, color="orange",size=0.005)+
-        geom_sf(data=c3c_ternBFAL_sf, color="firebrick",size=0.005)+
+        #geom_sf(data=c3c_ternLAAL_sf, color="orange",size=0.005)+
+        #geom_sf(data=c3c_ternBFAL_sf, color="firebrick",size=0.005)+
         geom_sf(data=CRW_tl95c, color="orange",fill="orange",alpha=0.5)+
         geom_sf(data=CRW_tb95c, color="firebrick",fill="firebrick",alpha=0.5)+
-      #geom_sf(data=npac_base_res, fill="grey60")
-        coord_sf(xlim = c(-9e06, 9e06), ylim = c(-5.5e06, 1.25e07),expand=F)
+        geom_sf(data=land_mask, fill="grey60")+
+        coord_sf(expand=F)
       ternLAALternBFALCRWrandom
       
-      save(ternLAALternBFALCRWrandom,file="3c.Rdata")
-      load("E:/spatial_segregation/src/phase_2/my_methods/figure_scripts/figure3/3c.Rdata")
-      ternLAALternBFALCRWrandom
-      
+      setwd("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3")
+      save(ternLAALternBFALCRWrandom,file="3c_v3.Rdata")
+        load("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3/3c_v2")
+        load("E:/spatial_segregation/src/phase_2/my_methods/figure_scripts/figure3/3c.Rdata")
+        ternLAALternBFALCRWrandom
 
 # Plot everything ---------------------------------------------------------
 

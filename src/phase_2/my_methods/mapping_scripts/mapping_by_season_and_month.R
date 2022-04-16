@@ -26,6 +26,10 @@ library(dplyr)
 library(ggnewscale)
 library(ggsn)
 
+eqc <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=-180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/pre_defense/contours_rasters_figureData/basemap/")
+load("npac_base_res.Rdata")
+
 # CRITICAL: 
 sf::sf_use_s2(FALSE)
 # The above line is necessary as of April 17 2021, when 'sf' switched to using S2 spheroid 
@@ -157,7 +161,10 @@ npac_base_i <- ptolemy::extract_gshhg(BFAL_points, resolution = "i", epsg = 3832
                                       simplify = FALSE) # using an sf object to set the appropriate boundary box and CRS
 
 
-LAAL_points <- st_transform(LAAL_points, crs=3832)
+LAAL_points <- LAAL_points %>%
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
 
 season_names <- c(
   `1` = "Winter",
@@ -168,13 +175,16 @@ season_names <- c(
 figure_LAAL <- ggplot() + 
   # base map and other parameters
   geom_sf(data=LAAL_points, aes(color=island), size=0.005, alpha = 0.5)+
-  geom_sf(data=npac_base_i, fill="grey60")+
-  scale_color_manual(values=c("orange","firebrick"))+
+  geom_sf(data=npac_base_res, fill="grey60")+
+  scale_color_manual(values=c("chocolate2","darkred"))+
   theme(legend.key.size = unit(3,"line"))+
   guides(color = guide_legend(override.aes = list(size=10)))+
-  facet_wrap(~month_factor)
+  facet_wrap(~month_factor)+  
+  coord_sf(expand=F)+
+  theme_bw()
   #facet_wrap(~season, labeller = as_labeller(season_names))+
   #ggtitle("LAAL locations by month and breeding colony")
+
 figure_LAAL
 
 gp <- ggplotGrob(figure_LAAL)
@@ -184,7 +194,11 @@ gtable::gtable_show_layout(gp)
 
 # now do again for BFAL 
 
-BFAL_points <- st_transform(BFAL_points, crs=3832)
+
+BFAL_points <- BFAL_points %>%
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
 
 season_names <- c(
   `1` = "Winter",
@@ -195,16 +209,18 @@ season_names <- c(
 figure_BFAL <- ggplot() + 
   # base map and other parameters
   geom_sf(data=BFAL_points, aes(color=island), size=0.005, alpha = 0.5)+
-  geom_sf(data=npac_base_i, fill="grey60")+
-  scale_color_manual(values=c("turquoise2","royalblue4"))+
+  geom_sf(data=npac_base_res, fill="grey60")+
+  scale_color_manual(values=c("cyan3","blue3"))+
   theme(legend.key.size = unit(3,"line"))+
   guides(color = guide_legend(override.aes = list(size=10)))+
-  facet_wrap(~month_factor)
+  facet_wrap(~month_factor)+
+  coord_sf(expand=F)+
+  theme_bw()
   #facet_wrap(~season, labeller = as_labeller(season_names))+
   #ggtitle("BFAL locations by month and breeding colony")
 figure_BFAL
 
-library(ggpubr)
+c("#EE7621", "#FFFFFF", "#FFFFFF")library(ggpubr)
 combined_figure <- ggarrange(figure_LAAL, figure_BFAL, 
                              labels = c("a", "b"),
                              ncol = 1, nrow = 2)

@@ -216,14 +216,14 @@ all_wind10M <- all_wind10M %>% filter(MonthName %in% c("June","July","August","S
 
 all_wind10M <- all_wind10M %>% mutate(class_factor = factor(class, levels=c("Midway LAAL","Tern LAAL","Midway BFAL","Tern BFAL")))
 
-pal2 <- c("firebrick","firebrick1","turquoise","royalblue4")
+pal2 <- c("firebrick","orangered","dodgerblue","royalblue4")
 
 ggplot() +
   geom_boxplot(all_wind10M, mapping=aes(MonthName,wind_speed10M, fill=class_factor), outlier.shape = NA,position = position_dodge(preserve = "single"))+
   theme_classic() + 
   labs(title = "daily averaged wind10M speed by island and species") +
   scale_fill_manual(name="species",values=c(pal2[2],pal2[1],pal2[3],pal2[4]))+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
   scale_x_discrete(limits = month.name[6:11]) +
   xlab("Month")
 

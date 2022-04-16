@@ -3,7 +3,7 @@
 # they are titled e.g. midLAAL_contours_mapping
 # Dallas Jordan
 # Dec 18 2021
-
+# Last updated March 7 2022
 
 # Setup -------------------------------------------------------------------
 
@@ -20,34 +20,45 @@ sf::sf_use_s2(FALSE)
 # Great reference here: https://r-spatial.github.io/sf/articles/sf7.html
 
 lcea <- "+proj=cea +lat_0=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs"
+eqc <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=-180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+
+
 # Reference for this is EPSG 6933, WGS 84 / NSIDC EASE-Grid 2.0 Global
 #    cea <- "+proj=cea +lat_0=20 +lat_ts=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs" # lat_ts (Standard Parallel) describes latitudes where there is no distortion. 
 #    _ts means "true scale", the lat or lon where there is no distortion. lon_0 = the natural origin for longitude
 
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/pre_defense/contours_rasters_figureData/basemap/")
+load("npac_base_res.Rdata")
 
 # Import contours ---------------------------------------------------------
 
 #load contours, as of Jun 22 they are SpatialPolygonsDataFrame
 # for mac
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/individual/midLAAL/master_script_contours/")
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/pre_defense/contours_rasters_figureData/individual/midLAAL/master_script_contours/")
 load("vert95_midLAAL.Rdata")
 load("vert50_midLAAL.Rdata")
 
+# Saving one example of old method for future reference:
+# ml95c <- st_as_sf(vert95_midLAAL) # 95th UD Contour
+# ml95c <- ml95c %>%
+#   st_transform(crs = 4326) %>% # transform to WGS84.
+#   st_wrap_dateline() %>% # wrap around the dateline
+#   st_shift_longitude() %>%
+#   st_union(by_feature = TRUE) %>%
+#   st_transform(crs = lcea)
+
 ml95c <- st_as_sf(vert95_midLAAL) # 95th UD Contour
-ml95c <- ml95c %>% 
-  st_transform(crs = 4326) %>% # transform to WGS84.
-  st_wrap_dateline() %>% # wrap around the dateline
-  st_shift_longitude() %>%  
-  st_union(by_feature = TRUE) %>% 
-  st_transform(crs = lcea)
+ml95c <- ml95c %>%
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
 
 ml50c <- st_as_sf(vert50_midLAAL) # 50th UD Contour
 ml50c <- ml50c %>% 
-  st_transform(crs = 4326) %>% # transform to WGS84.
-  st_wrap_dateline() %>% # wrap around the dateline
-  st_shift_longitude() %>%  
-  st_union(by_feature = TRUE) %>% 
-  st_transform(crs = lcea)
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
+
 
 # to get color scale working: 
 ml95c$id <- "foraging_range"
@@ -88,19 +99,16 @@ npac_base_i <- ptolemy::extract_gshhg(allBFAL.rast.sf, resolution = "i", epsg = 
 # Plot  -------------------------------------------------------------------
 
 figure <- ggplot() + 
-  # LAAL contours
-  geom_sf(data=ml95c, aes(fill=cntr_level)) +
-  geom_sf(data=ml50c, aes(fill=cntr_level)) +
-  # base map and other parameters
-  geom_sf(data=npac_base_i) +
-  scale_fill_manual(values=c("orange","orange"))+
-  guides(fill=guide_legend(title="Contour level"))+
-  #coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
+  geom_sf(data=ml95c, color="black", fill="orangered", size=1.25) +
+  geom_sf(data=ml50c, color="black", fill="orangered", size=1.25) +
+  geom_sf(data=npac_base_res, fill="grey60") +
   coord_sf(expand=F)+
-  theme_bw()+
-  ggtitle("a")+
-  theme(plot.title = element_text(size=12))+
-  theme(legend.position = "none")+
+  theme_bw()
+  # guides(fill=guide_legend(title="Contour level"))+
+  #coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
+  # ggtitle("a")+
+  # theme(plot.title = element_text(size=12))+
+  # theme(legend.position = "none")+
   # theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
   #       legend.key.height = unit(0.5, 'cm'), #change legend key height
   #       legend.key.width = unit(0.5, 'cm'), #change legend key width
@@ -113,9 +121,8 @@ figure <- ggplot() +
   #                        style = north_arrow_fancy_orienteering,
   #                        height = unit(.75,"cm"),
 #                        width = unit(.75,"cm"))+
-theme(axis.title.x=element_blank(),
-      axis.title.y=element_blank())
+# theme(axis.title.x=element_blank(),
+#       axis.title.y=element_blank())
 
 figure
-
 

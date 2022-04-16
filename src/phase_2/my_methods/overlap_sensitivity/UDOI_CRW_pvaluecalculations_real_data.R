@@ -43,18 +43,18 @@ MLMB50_pvalue <- (sum(CRW_values[,8]<MLMB50))/100
 TLTB95_pvalue <- (sum(CRW_values[,9]<TLTB95))/100
 TLTB50_pvalue <- (sum(CRW_values[,10]<TLTB50))/100
 
-# all commented values here accurate Nov 30 2021
+# all commented values here accurate Feb 28 2022
 ALAB95_pvalue # 0
 ALAB50_pvalue # 0
 
-MLTL95_pvalue # 0.83
-MLTL50_pvalue # 0.83
+MLTL95_pvalue # 1
+MLTL50_pvalue # 1
 
-MBTB95_pvalue # 0.5
-MBTB50_pvalue # 0.02
+MBTB95_pvalue # 0.44
+MBTB50_pvalue # 0.05
 
-MLMB95_pvalue # 0.91
-MLMB50_pvalue # 0 
+MLMB95_pvalue # 0.86
+MLMB50_pvalue # 0.01
 
 TLTB95_pvalue # 0 
 TLTB50_pvalue # 0 

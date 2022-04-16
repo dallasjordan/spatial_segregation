@@ -49,7 +49,7 @@ lcea <- "+proj=cea +lat_0=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_d
 
 #load contours, as of Jun 22 they are SpatialPolygonsDataFrame
 # for mac
-  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/allLAAL_allBFAL/master_script_contours/")
+  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/pre_defense/contours_rasters_figureData/allLAAL_allBFAL/master_script_contours/")
 # for pc
   setwd("E:/project_data/spatial_segregation/figures/allLAAL_allBFAL/master_script_contours")
 
@@ -119,7 +119,7 @@ ab10c <- ab10c %>%
 
 # load rasters
 # for mac
-  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/contours_rasters_figureData/allLAAL_allBFAL/master_script_rasters/")
+  setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/pre_defense/contours_rasters_figureData/allLAAL_allBFAL/master_script_rasters/")
 # for pc
   setwd("E:/project_data/spatial_segregation/figures/allLAAL_allBFAL/master_script_rasters/")
 load("allBFAL_ud_vol_rast.Rdata")
@@ -241,8 +241,8 @@ pie(rep(1, ncols), col = redcols2, border = NA, labels = NA)
 # blank for adding placenames
 figure <- ggplot() + 
   # base map and other parameters
-  geom_sf(data=npac_base_i) +
-  coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
+  geom_sf(data=npac_base_res) +
+  #coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
   theme_bw()+
   ggtitle("a")+
   theme(plot.title = element_text(size=12))+
@@ -285,8 +285,8 @@ figure1 <- ggplot() +
   # geom_sf(data=ab50c, color=("#E86464"), fill=alpha("#E86464",0.6)) +
   # geom_sf(data=ab10c, color=("#E30303"), alpha=0.8, fill="#E30303") +
   # base map and other parameters
-  geom_sf(data=npac_base_i) +
-  coord_sf(expand=F)+
+  #geom_sf(data=npac_base_i) +
+  coord_sf(expand=T)+
   #for PDC mercator: coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 12000000)) +
   theme_bw()+
   ggtitle("a")+

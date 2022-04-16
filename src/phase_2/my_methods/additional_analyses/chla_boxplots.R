@@ -102,14 +102,14 @@ all_chla = all_chla %>%
 all_chla <- all_chla %>% filter(MonthName %in% c("June","July","August","September","October","November"))
 all_chla <- all_chla %>% mutate(class_factor = factor(class, levels=c("Midway LAAL","Tern LAAL","Midway BFAL","Tern BFAL")))
 
-pal2 <- c("firebrick","firebrick1","turquoise","royalblue4")
+pal2 <- c("firebrick","orangered","dodgerblue","royalblue4")
 ggplot() +
   geom_boxplot(all_chla, mapping=aes(MonthName,chla, fill=class_factor),outlier.shape = NA,position = position_dodge(preserve = "single"))+
   theme_classic() + 
   labs(title = "chlA by island and species") +
   scale_fill_manual(name="species",values=c(pal2[2],pal2[1],pal2[3],pal2[4]))+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
   scale_x_discrete(limits = month.name[6:11]) +
   scale_y_continuous(limits=c(0,1.5))+
-  ylab("chlA (mg m^-3)")+
+  ylab("ChlA (mg m^-3)")+
   xlab("Month")

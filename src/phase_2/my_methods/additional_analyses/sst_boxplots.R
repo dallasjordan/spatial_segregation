@@ -81,14 +81,15 @@ all_SST = all_SST %>%
 all_SST <- all_SST %>% filter(month %in% c("June","July","August","September","October","November"))
 all_SST <- all_SST %>% mutate(class_factor = factor(class, levels=c("Midway LAAL","Tern LAAL","Midway BFAL","Tern BFAL")))
 
-pal2 <- c("firebrick","firebrick1","turquoise","royalblue4")
+pal2 <- c("firebrick","orangered","dodgerblue","royalblue4")
 ggplot() +
   geom_boxplot(all_SST, mapping=aes(month,DailyMeanSST, fill=class_factor), outlier.shape = NA,position = position_dodge(preserve = "single"))+
   theme_classic() + 
   labs(title = "Daily mean SST by island and species") +
   scale_fill_manual(name="species",values=c(pal2[2],pal2[1],pal2[3],pal2[4]))+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
   scale_x_discrete(limits = month.name[6:11]) +
+  scale_y_discrete(limits=1:30,breaks=c(5,10,15,20,25)) +
   xlab("Month")
 
 
