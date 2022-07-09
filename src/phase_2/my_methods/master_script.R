@@ -98,20 +98,21 @@ years <- c("2008","2009","2010","2011","2012")
 
 
 # Load data ---------------------------------------------------------------
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/final_tracks/")
 
-load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/publication_figures/LAALdata_midway_withTrackID.Rdata")
+load("./LAALdata_midway_withTrackID.Rdata")
 LAALmid <- LAAL
 LAALmid$id <- paste0("lm",LAALmid$track)
-load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/publication_figures/LAALdata_tern_withTrackID.Rdata")
+load("./LAALdata_tern_withTrackID.Rdata")
 LAALtern <- LAAL
 LAALtern$id <- paste0("lt",LAALtern$track)
 
 LAAL <- rbind(LAALmid, LAALtern)
 
-load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/publication_figures/BFALdata_midway_withTrackID.Rdata")
+load("./BFALdata_midway_withTrackID.Rdata")
 BFALmid <- BFAL
 BFALmid$id <- paste0("bm",BFALmid$track)
-load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/publication_figures/BFALdata_tern_withTrackID.Rdata")
+load("./BFALdata_tern_withTrackID.Rdata")
 BFALtern <- BFAL
 BFALtern$id <- paste0("bt",BFALtern$track)
 
@@ -417,12 +418,12 @@ ternLAAL <- lt_averaged_estUD
 ternBFAL <- bt_averaged_estUD
 
 path <- paste0(getwd(),"/final_push/final_ud/")
-save(allLAAL, file=paste0(path,"allLAAL.Rdata"))
-save(allBFAL, file=paste0(path,"allBFAL.Rdata"))
-save(midLAAL, file=paste0(path,"midLAAL.Rdata"))
-save(midBFAL, file=paste0(path,"midBFAL.Rdata"))
-save(ternLAAL, file=paste0(path,"ternLAAL.Rdata"))
-save(ternBFAL, file=paste0(path,"ternBFAL.Rdata"))
+# save(allLAAL, file=paste0(path,"allLAAL.Rdata"))
+# save(allBFAL, file=paste0(path,"allBFAL.Rdata"))
+# save(midLAAL, file=paste0(path,"midLAAL.Rdata"))
+# save(midBFAL, file=paste0(path,"midBFAL.Rdata"))
+# save(ternLAAL, file=paste0(path,"ternLAAL.Rdata"))
+# save(ternBFAL, file=paste0(path,"ternBFAL.Rdata"))
 
 ### load in files ###
 
@@ -462,11 +463,11 @@ names(ternLAAL_v_ternBFAL)<-c("ternLAAL","ternBFAL")
 
 # save data classes; now you don't need to re-run all of the above
 path <- "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/permutation_tests/data_to_load/"
-save(allLAAL_v_allBFAL, file=paste0(path,"allLAAL_v_allBFAL.Rdata"))
-save(midLAAL_v_ternLAAL, file=paste0(path,"midLAAL_v_ternLAAL.Rdata"))
-save(midBFAL_v_ternBFAL, file=paste0(path,"midBFAL_v_ternBFAL.Rdata"))
-save(midLAAL_v_midBFAL, file=paste0(path,"midLAAL_v_midBFAL.Rdata"))
-save(ternLAAL_v_ternBFAL, file=paste0(path,"ternLAAL_v_ternBFAL.Rdata"))
+# save(allLAAL_v_allBFAL, file=paste0(path,"allLAAL_v_allBFAL.Rdata"))
+# save(midLAAL_v_ternLAAL, file=paste0(path,"midLAAL_v_ternLAAL.Rdata"))
+# save(midBFAL_v_ternBFAL, file=paste0(path,"midBFAL_v_ternBFAL.Rdata"))
+# save(midLAAL_v_midBFAL, file=paste0(path,"midLAAL_v_midBFAL.Rdata"))
+# save(ternLAAL_v_ternBFAL, file=paste0(path,"ternLAAL_v_ternBFAL.Rdata"))
 
 
 # Overlap calculations ----------------------------------------------------

@@ -6,6 +6,8 @@
 # in the North Pacific. Uses Ptolemy, ggarrange. Each one of 4 panels is a different season. 
 # First load in all the tracking data, add months, add season counter, then plot
 
+# May 18 2022 Update - 
+  # Added a section to plot by my new bimonthly temporal periods (june-july, august-sept, oct-nov)
 
 # Setup -------------------------------------------------------------------
 
@@ -38,6 +40,16 @@ sf::sf_use_s2(FALSE)
 # See: https://github.com/r-spatial/sf/issues/1649
 # Great reference here: https://r-spatial.github.io/sf/articles/sf7.html
 
+
+midway <- data.frame(longitude = -177.3761,
+                     latitude = 28.2101)
+tern <- data.frame(longitude = -166.284,
+                   latitude = 23.870)
+
+midway <- st_as_sf(midway, coords = c("longitude", "latitude"), 
+                   crs = 4326, agr = "constant")
+tern <- st_as_sf(tern, coords = c("longitude", "latitude"), 
+                 crs = 4326, agr = "constant")
 
 # Load in tracking data ---------------------------------------------------
 
@@ -161,6 +173,8 @@ npac_base_i <- ptolemy::extract_gshhg(BFAL_points, resolution = "i", epsg = 3832
                                       simplify = FALSE) # using an sf object to set the appropriate boundary box and CRS
 
 
+
+# by month ----------------------------------------------------------------
 LAAL_points <- LAAL_points %>%
   st_transform(4326) %>%
   st_shift_longitude() %>%
@@ -174,7 +188,7 @@ season_names <- c(
 )
 figure_LAAL <- ggplot() + 
   # base map and other parameters
-  geom_sf(data=LAAL_points, aes(color=island), size=0.005, alpha = 0.5)+
+  geom_sf(data=LAAL_points, aes(color=island), size=0.2, alpha = 0.5)+
   geom_sf(data=npac_base_res, fill="grey60")+
   scale_color_manual(values=c("chocolate2","darkred"))+
   theme(legend.key.size = unit(3,"line"))+
@@ -208,7 +222,7 @@ season_names <- c(
 )
 figure_BFAL <- ggplot() + 
   # base map and other parameters
-  geom_sf(data=BFAL_points, aes(color=island), size=0.005, alpha = 0.5)+
+  geom_sf(data=BFAL_points, aes(color=island), size=0.02, alpha = 0.5)+
   geom_sf(data=npac_base_res, fill="grey60")+
   scale_color_manual(values=c("cyan3","blue3"))+
   theme(legend.key.size = unit(3,"line"))+
@@ -227,3 +241,122 @@ combined_figure <- ggarrange(figure_LAAL, figure_BFAL,
 combined_figure
 
 
+
+
+
+# by bimontly periods -----------------------------------------------------
+
+LAAL_points_bimonthly <- LAAL_points_sufficient_data %>%
+  mutate(bimonthly = case_when(
+    grepl("June", month) ~ "Jun. - Jul.",
+    grepl("July", month) ~ "Jun. - Jul.",
+    grepl("August", month) ~ "Aug. - Sept.",
+    grepl("September", month) ~ "Aug. - Sept.",
+    grepl("October", month) ~ "Oct. - Nov.",
+    grepl("November", month) ~ "Oct. - Nov."
+  ))
+LAAL_points_bimonthly <- LAAL_points_bimonthly %>%
+  mutate(bimonthly_factor = factor(bimonthly, levels=c("Jun. - Jul.","Aug. - Sept.", "Oct. - Nov.")))
+
+BFAL_points_bimonthly <- BFAL_points_sufficient_data %>%
+  mutate(bimonthly = case_when(
+    grepl("June", month) ~ "Jun. - Jul.",
+    grepl("July", month) ~ "Jun. - Jul.",
+    grepl("August", month) ~ "Aug. - Sept.",
+    grepl("September", month) ~ "Aug. - Sept.",
+    grepl("October", month) ~ "Oct. - Nov.",
+    grepl("November", month) ~ "Oct. - Nov."
+  ))
+BFAL_points_bimonthly <- BFAL_points_bimonthly %>%
+  mutate(bimonthly_factor = factor(bimonthly, levels=c("Jun. - Jul.","Aug. - Sept.", "Oct. - Nov.")))
+
+
+
+LAAL_points = st_as_sf(LAAL_points_bimonthly, coords = c("x","y"), remove = FALSE, crs=4326)
+BFAL_points = st_as_sf(BFAL_points_bimonthly, coords = c("x","y"), remove = FALSE, crs=4326)
+
+
+
+
+
+LAAL_points <- LAAL_points %>%
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
+
+season_names <- c(
+  `1` = "Winter",
+  `2` = "Spring",
+  `3` = "Summer",
+  `4` = "Fall"
+)
+figure_LAAL <- ggplot() + 
+  # base map and other parameters
+  geom_sf(data=LAAL_points, aes(color=island), size=0.5)+
+  geom_sf(data=npac_base_res, fill="grey60")+
+  scale_color_manual(values=c("chocolate2","darkred"))+
+  theme(legend.key.size = unit(3,"line"))+
+  guides(color = guide_legend(override.aes = list(size=10)))+
+  facet_wrap(~bimonthly_factor)+  
+  scale_y_continuous(breaks = c(10, 30, 50, 70))+
+  scale_x_continuous(breaks = c(-120,-140,-160,180,160,140,120))+
+  geom_sf(data=midway, size=3,shape=17,fill="black",color="black")+
+  geom_sf(data=tern, size=4,shape=18,fill="black",color="black")+
+  coord_sf(expand=F)+
+  theme_bw()
+#facet_wrap(~season, labeller = as_labeller(season_names))+
+#ggtitle("LAAL locations by month and breeding colony")
+
+figure_LAAL
+
+
+
+# now do again for BFAL 
+
+
+BFAL_points <- BFAL_points %>%
+  st_transform(4326) %>%
+  st_shift_longitude() %>%
+  st_transform(eqc)
+
+season_names <- c(
+  `1` = "Winter",
+  `2` = "Spring",
+  `3` = "Summer",
+  `4` = "Fall"
+)
+figure_BFAL <- ggplot() + 
+  # base map and other parameters
+  geom_sf(data=BFAL_points, aes(color=island), size=0.5,)+
+  geom_sf(data=npac_base_res, fill="grey60")+
+  scale_color_manual(values=c("cyan3","blue3"))+
+  theme(legend.key.size = unit(3,"line"))+
+  guides(color = guide_legend(override.aes = list(size=10)))+
+  facet_wrap(~bimonthly_factor)+
+  scale_y_continuous(breaks = c(10, 30, 50, 70))+
+  scale_x_continuous(breaks = c(-120,-140,-160,180,160,140,120))+
+  geom_sf(data=midway, size=3,shape=17,fill="black",color="black")+
+  geom_sf(data=tern, size=4,shape=18,fill="black",color="black")+
+  coord_sf(expand=F)+
+  theme_bw()
+#facet_wrap(~season, labeller = as_labeller(season_names))+
+#ggtitle("BFAL locations by month and breeding colony")
+figure_BFAL
+
+summary_LAAL_jj <- LAAL_points_bimonthly %>% filter(bimonthly_factor=="Jun. - Jul.")
+unique(summary_LAAL_jj$id)
+
+summary_LAAL_as <- LAAL_points_bimonthly %>% filter(bimonthly_factor=="Aug. - Sept.")
+unique(summary_LAAL_as$id)
+
+summary_LAAL_on <- LAAL_points_bimonthly %>% filter(bimonthly_factor=="Oct. - Nov.")
+unique(summary_LAAL_on$id)
+
+summary_BFAL_jj <- BFAL_points_bimonthly %>% filter(bimonthly_factor=="Jun. - Jul.")
+unique(summary_BFAL_jj$id)
+
+summary_BFAL_as <- BFAL_points_bimonthly %>% filter(bimonthly_factor=="Aug. - Sept.")
+unique(summary_BFAL_as$id)
+
+summary_BFAL_on <- BFAL_points_bimonthly %>% filter(bimonthly_factor=="Oct. - Nov.")
+unique(summary_BFAL_on$id)

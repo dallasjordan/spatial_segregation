@@ -4,9 +4,18 @@
 #              Tern LAAL x Tern BFAL - CRW agrees with track perm, sig. segregation 
 # Plot original data (points), plot one random of track perm, plot one random of CRW, each of these 
 # have contours plotted over randomization points
-# Ostensibly will be figure 3
+# Ostensibly will be figure 3 (ended up being figure 4)
+# NOTE - You did not end up making a 9 panel figure!
+# You instead just used this script to make MidwayLAAL x TernLAAL comparisons for observed data,
+# track ID switch contours, and CRW generated contours to show that the CRW contours made more sense.
 # Dallas Jordan
-# Dec 23 2021
+# May 2 2022
+  # Changing panel C to include the new 1000 iteration random walks - I have to redo this panel 
+  # because the CRWs now are drawn from a distribution of distances and turning angles, so they 
+  # look different
+
+# May 17 2022 updates
+  # Just added icons for Tern and Midway colony sites and changed x/y axis spacing/labels to 20 degrees
 
 # Setup -------------------------------------------------------------------
 
@@ -35,6 +44,16 @@ calculate_sp_obj_extent <- function(sp_obj, extent_parameter){
   print(print3)
   return(grid_calc)
 }
+
+midway <- data.frame(longitude = -177.3761,
+                    latitude = 28.2101)
+tern <- data.frame(longitude = -166.284,
+                   latitude = 23.870)
+
+midway <- st_as_sf(midway, coords = c("longitude", "latitude"), 
+                   crs = 4326, agr = "constant")
+tern <- st_as_sf(tern, coords = c("longitude", "latitude"), 
+                   crs = 4326, agr = "constant")
 
 # CRITICAL: 
 sf::sf_use_s2(FALSE)
@@ -168,6 +187,10 @@ midLAALternLAAL <- ggplot() +
   #geom_sf(data=CRW_ml95c, color=NA,alpha=0)+
   geom_sf(data=npac_base_res, fill="grey60")+
   theme_bw()+
+  scale_y_continuous(breaks = c(10, 30, 50, 70))+
+  scale_x_continuous(breaks = c(-120,-140,-160,180,160,140,120))+
+  geom_sf(data=midway, size=3,shape=17,fill="black",color="black")+
+  geom_sf(data=tern, size=4,shape=18,fill="black",color="black")+
   coord_sf(expand=F)
   #coord_sf(xlim = c(-10246822, 4164347), ylim = c(-6563332, 15190864),expand=F)
 midLAALternLAAL
@@ -266,13 +289,17 @@ midLAALternLAALtrackpermrandom <- ggplot() +
   #geom_sf(data=CRW_ml95c, color=NA,alpha=0)+
   geom_sf(data=npac_base_res, fill="grey60")+
   theme_bw()+
+  geom_sf(data=midway, size=3,shape=17,fill="black",color="black")+
+  geom_sf(data=tern, size=4,shape=18,fill="black",color="black")+
+  scale_y_continuous(breaks = c(10, 30, 50, 70))+
+  scale_x_continuous(breaks = c(-120,-140,-160,180,160,140,120))+
   coord_sf(expand=F)
   #coord_sf(xlim = c(-2000000, 10000000), ylim = c(1464000, 13000000),expand=F)
 midLAALternLAALtrackpermrandom
 
 # save this so you don't save to re-generate from scripts
 save(midLAALternLAALtrackpermrandom,file="2a_v4.Rdata")
-load("E:/spatial_segregation/src/phase_2/my_methods/figure_scripts/figure3/2a.Rdata")
+load("E:/spatial_segregation/src/phase_2/my_methods/figure_scripts/figure3/2a_v4.Rdata")
 load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3/figure3_old/2a.Rdata")
 midLAALternLAALtrackpermrandom
 
@@ -383,14 +410,60 @@ ternLAALternBFALtrackpermrandom
 # import points from CRW_sim_allpoints.csv. Pick an iteration for each class you need. Convert those to an sp dataframe of points. Change 
 # the projection. Create contours using getverticeshr, which will require running kernelUD on the spdf. 
 
-CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/overlap_sensitivity/one_iteration_of_CRW_pts.csv")
+# May 2 2022 update: new CRW file of CRW drawn from distributions
+load(file="/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/overlap_sensitivity/CRW_v4_all.Rdata")
+spp_col_list_all <- save_spp_col_list
+list_to_df_add_iteration_number <- function(spp_col_list){
+  iteration_vector <- 1:1000
+  num <- length(spp_col_list)/1000
+  if (num==3){
+    spp_col_one <- spp_col_list[1:1000]
+    spp_col_two <- spp_col_list[1001:2000]
+    spp_col_three <- spp_col_list[2001:3000]
+    for (a in 1:1000){
+      spp_col_one[[a]]$iteration_number <- a
+    }
+    for (b in 1:1000){
+      spp_col_two[[b]]$iteration_number <- b
+    }
+    for (c in 1:1000){
+      spp_col_three[[c]]$iteration_number <- c
+    }
+    merge_list <- c(spp_col_one, spp_col_two, spp_col_three)
+  }
+  if (num==4){
+    spp_col_one <- spp_col_list[1:1000]
+    spp_col_two <- spp_col_list[1001:2000]
+    spp_col_three <- spp_col_list[2001:3000]
+    spp_col_four<- spp_col_list[3001:4000]
+    for (a in 1:1000){
+      spp_col_one[[a]]$iteration_number <- a
+    }
+    for (b in 1:1000){
+      spp_col_two[[b]]$iteration_number <- b
+    }
+    for (c in 1:1000){
+      spp_col_three[[c]]$iteration_number <- c
+    }
+    for (d in 1:1000){
+      spp_col_four[[d]]$iteration_number <- d
+    }
+    merge_list <- c(spp_col_one, spp_col_two, spp_col_three, spp_col_four)
+  }
+  output <- bind_rows(merge_list)
+  return(output)
+}
+
+# convert to large dataframes
+CRW_sim_allpoints <- list_to_df_add_iteration_number(spp_col_list_all)
+#CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/overlap_sensitivity/one_iteration_of_CRW_pts.csv")
 #CRW_sim_allpoints <- read.csv("G:/Other computers/My MacBook Pro/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/overlap_sensitivity/julia_simulations/CRW_permutation_results/real_data/CRW_pts.csv")
 #CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/overlap_sensitivity/julia_simulations/CRW_permutation_results/real_data/CRW_pts.csv")
 
 # Midway LAAL x Tern LAAL
   # Midway LAAL
       c3a_midLAAL_points <- CRW_sim_allpoints %>% filter(grepl('LAAL_MID', Animal_ID))
-      c3a_midLAAL_points <- c3a_midLAAL_points %>% filter(iter==34)
+      c3a_midLAAL_points <- c3a_midLAAL_points %>% filter(iteration_number==1)
       # over_pole <- function(x){
       #   if_else(x>6363885, x-(x-6363885),x)
       # }
@@ -428,7 +501,7 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
 
       
       
-      c3a_midLAAL_points <- c3a_midLAAL_points[,c(2,3,4)]
+      c3a_midLAAL_points <- c3a_midLAAL_points[,c(1,2,3)]
       sp::coordinates(c3a_midLAAL_points) <- c("Longitude", "Latitude")
       #proj4string(c3a_midLAAL_points) <- CRS(lcea) # placeholder
       #c3a_midLAAL_points <- spTransform(c3a_midLAAL_points,CRS("+init=epsg:3349"))
@@ -437,7 +510,7 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       c3a_midLAAL_ud <-  kernelUD(c3a_midLAAL_points, grid=grid_input,same4all=T,extent=0.1,h=150000)
       
       # average into 1 UD
-      mid_iter_holder <- numeric(length = 1333)
+      mid_iter_holder <- numeric(length = 1472)
       for (d in 1:length(c3a_midLAAL_ud)) {
         c3a_midLAAL_ud[[d]]@data$ud[is.na(c3a_midLAAL_ud[[d]]@data$ud)] <- 0
         add <- c3a_midLAAL_ud[[d]]@data$ud
@@ -487,7 +560,7 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       
   # Tern LAAL
       c3a_ternLAAL_points <- CRW_sim_allpoints %>% filter(grepl('LAAL_TERN', Animal_ID))
-      c3a_ternLAAL_points <- c3a_ternLAAL_points %>% filter(iter==34) 
+      c3a_ternLAAL_points <- c3a_ternLAAL_points %>% filter(iteration_number==1)
     
       # c3a_ternLAAL_points$Latitude <- max_lat(c3a_ternLAAL_points$Latitude)
       # ind <- with(c3a_ternLAAL_points, (Latitude == 6339452))
@@ -498,7 +571,7 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       # c3a_ternLAAL_points_sf <- c3a_ternLAAL_points_sf %>%
       #   st_transform(3349)
       
-      c3a_ternLAAL_points <- c3a_ternLAAL_points[,c(2,3,4)]
+      c3a_ternLAAL_points <- c3a_ternLAAL_points[,c(1,2,3)]
       sp::coordinates(c3a_ternLAAL_points) <- c("Longitude", "Latitude")
       # proj4string(c3a_ternLAAL_points) <- CRS(lcea) # placeholder
       # c3a_ternLAAL_points <- spTransform(c3a_ternLAAL_points,CRS("+init=epsg:3349"))
@@ -507,7 +580,7 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       c3a_ternLAAL_ud <-  kernelUD(c3a_ternLAAL_points, grid=grid_input,same4all=T,extent=0.1,h=150000)
       
       # average into 1 UD
-      tern_iter_holder <- numeric(length = 1472)
+      tern_iter_holder <- numeric(length = 1376)
       for (d in 1:length(c3a_ternLAAL_ud)) {
         c3a_ternLAAL_ud[[d]]@data$ud[is.na(c3a_ternLAAL_ud[[d]]@data$ud)] <- 0
         add <- c3a_ternLAAL_ud[[d]]@data$ud
@@ -534,10 +607,10 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
       
       # 
       # plot c3a
-      npac_base_i <- ptolemy::extract_gshhg(CRW_ml95c, resolution = "c", epsg = NULL, buffer = 5000,
-                                            simplify = FALSE) # using an sf object to set the appropriate boundary box and CRS
-      save(npac_base_i,file="basemap_figure3_v2")
-      load("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3/figure3_old/basemap_figure3_v2")
+      # npac_base_i <- ptolemy::extract_gshhg(CRW_ml95c, resolution = "c", epsg = NULL, buffer = 5000,
+      #                                       simplify = FALSE) # using an sf object to set the appropriate boundary box and CRS
+      # save(npac_base_i,file="basemap_figure3_v2")
+      # load("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3/figure3_old/basemap_figure3_v2")
       midLAALternLAALCRWrandom <- ggplot() + 
         # base map and other parameters
         #geom_sf(data=c3a_midLAAL_points_sf, color="orange",size=0.005)+
@@ -547,12 +620,16 @@ CRW_sim_allpoints <- read.csv("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thes
         #geom_sf(data=land_mask, fill="grey60")+
         geom_sf(data=npac_base_res,fill="grey60")+
         theme_bw()+
+        geom_sf(data=midway, size=3,shape=17,fill="black",color="black")+
+        geom_sf(data=tern, size=4,shape=18,fill="black",color="black")+
+        scale_y_continuous(breaks = c(10, 30, 50, 70))+
+        scale_x_continuous(breaks = c(-120,-140,-160,180,160,140,120))+
         coord_sf(expand=F)
         # coord_sf(expand=F)
       midLAALternLAALCRWrandom
       
   setwd("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3")
-  save(midLAALternLAALCRWrandom,file="3a_v4.Rdata")
+  save(midLAALternLAALCRWrandom,file="3a_v5.Rdata")
       load("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/spatial_segregation_git/src/phase_2/my_methods/figure_scripts/figure3/3a_v3.Rdata")
       load("E:/spatial_segregation/src/phase_2/my_methods/figure_scripts/figure3/3a.Rdata")
       midLAALternLAALCRWrandom

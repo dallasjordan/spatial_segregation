@@ -22,6 +22,16 @@ sf::sf_use_s2(FALSE)
 
 lcea <- "+proj=cea +lat_0=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs"
 eqc <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=-180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+midway <- data.frame(longitude = -177.3761,
+                     latitude = 28.2101)
+tern <- data.frame(longitude = -166.284,
+                   latitude = 23.870)
+
+midway <- st_as_sf(midway, coords = c("longitude", "latitude"), 
+                   crs = 4326, agr = "constant")
+tern <- st_as_sf(tern, coords = c("longitude", "latitude"), 
+                 crs = 4326, agr = "constant")
+
 
 # Reference for this is EPSG 6933, WGS 84 / NSIDC EASE-Grid 2.0 Global
 #    cea <- "+proj=cea +lat_0=20 +lat_ts=0 +lon_0=180 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs" # lat_ts (Standard Parallel) describes latitudes where there is no distortion. 
@@ -101,6 +111,10 @@ figure <- ggplot() +
   geom_sf(data=mb95c, color="black", fill="dodgerblue", size=1.25) +
   geom_sf(data=mb50c, color="black", fill="dodgerblue", size=1.25) +
   geom_sf(data=npac_base_res, fill="grey60") +
+  scale_y_continuous(breaks = c(10, 30, 50, 70))+
+  scale_x_continuous(breaks = c(-120,-140,-160,180,160,140,120))+
+  geom_sf(data=midway, size=3,shape=17,fill="black",color="black")+
+  geom_sf(data=tern, size=4,shape=18,fill="black",color="black")+
   coord_sf(expand=F)+
   theme_bw()
 

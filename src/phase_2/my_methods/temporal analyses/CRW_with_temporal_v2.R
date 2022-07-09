@@ -57,23 +57,24 @@ years <- c("2008","2009","2010","2011","2012")
 # Grab turning angles and step lengths
 
 ## Read in Spp_A and Spp_B from "simulation_exploration.R"
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/tern_postbreeding_exports/import_for_CRW/BFAL/")
-d_spps_bfal_tern <- list.files(pattern = ".csv$", recursive=T)
-d_spps_bfal_tern <- lapply(d_spps_bfal_tern, function(x) read.csv(x, header=T))
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/tern_postbreeding_exports/import_for_CRW/LAAL/")
-d_spps_laal_tern <- list.files(pattern = ".csv$", recursive=T)
-d_spps_laal_tern <- lapply(d_spps_laal_tern, function(x) read.csv(x, header=T))
+# USE RELATIVE PATHWAYS - setwd ONCE and leave it! 
+setwd("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/")
+# list Tern IS. BFAL FILES
+d_spps_bfal_tern <- list.files(path = "./tern_postbreeding_exports/import_for_CRW/BFAL/", pattern = ".csv$", recursive=T, full.names = T)
+d_spps_bfal_tern <- lapply(d_spps_bfal_tern, FUN = read.csv, header = T)
 
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/midway_postbreeding_exports/BFAL/")
-d_spps_bfal_mid <- list.files(pattern = ".csv$", recursive=T)
-d_spps_bfal_mid <- lapply(d_spps_bfal_mid, function(x) read.csv(x, header=T))
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/midway_postbreeding_exports/LAAL/")
-d_spps_laal_mid <- list.files(pattern = ".csv$", recursive=T)
+# list Tern IS. LAAL Files
+d_spps_laal_tern <- list.files(path = "./tern_postbreeding_exports/import_for_CRW/LAAL/", pattern = ".csv$", recursive=T, full.names = T)
+d_spps_laal_tern <- lapply(d_spps_laal_tern, FUN = read.csv, header=T)
+
+d_spps_bfal_mid <- list.files(path = "./midway_postbreeding_exports/BFAL/",pattern = ".csv$", recursive=T, full.names = T)
+d_spps_bfal_mid <- lapply(d_spps_bfal_mid, FUN = read.csv, header = T)
+d_spps_laal_mid <- list.files(path = "./midway_postbreeding_exports/LAAL/", pattern = ".csv$", recursive=T, full.names = T)
 d_spps_laal_mid <- lapply(d_spps_laal_mid, function(x) read.csv(x, header=T))
 
 #BFAL TERN
 d_spps_bfal_ternID <- c()
-for(i in 1:38){
+for(i in 1:length(d_spps_bfal_tern)){ # never hardcode for loop lengths, your code won't be applicable to any other data
   w <- d_spps_bfal_tern[[i]]
   w$ID <- paste("BFAL_TERN_", i, sep="")
   if(is.na(ymd(w$GMT_YYYY.MM.DD)) == TRUE){
@@ -87,7 +88,7 @@ d_spps_bfal_ternID <- d_spps_bfal_ternID %>% dplyr::select(ID, GMT, Longitude, L
 
 #LAAL TERN
 d_spps_laal_ternID <- c()
-for(i in 1:45){
+for(i in 1:length(d_spps_laal_tern)){
   w <- d_spps_laal_tern[[i]]
   w$ID <- paste("LAAL_TERN_", i, sep="")
   if(is.na(ymd(w$GMT_YYYY.MM.DD)) == TRUE){
@@ -102,7 +103,7 @@ names(d_spps_laal_ternID) <- names(d_spps_bfal_ternID)
 
 #BFAL MID
 d_spps_bfal_midID <- c()
-for(i in 1:23){
+for(i in 1:length(d_spps_bfal_mid)){
   w <- d_spps_bfal_mid[[i]]
   w$ID <- paste("BFAL_MID_", i, sep="")
   w$dtime <- ymd_hms(w$dtime)
@@ -113,7 +114,7 @@ for(i in 1:23){
 
 #LAAL MID
 d_spps_laal_midID <- c()
-for(i in 1:37){
+for(i in 1:length(d_spps_laal_mid)){
   w <- d_spps_laal_mid[[i]]
   w$ID <- paste("LAAL_MID_", i, sep="")
   w$dtime <- ymd_hms(w$dtime)
@@ -123,7 +124,7 @@ for(i in 1:37){
 }
 
 # make dataframe of all categories with IDs
-d_birds <- data.frame(rbind(d_spps_bfal_midID, d_spps_bfal_ternID, d_spps_laal_midID, d_spps_laal_ternID))
+d_birds <- rbind(d_spps_bfal_midID, d_spps_bfal_ternID, d_spps_laal_midID, d_spps_laal_ternID)
 
 # reproject to make everything in PDC mercator, doing this because we need an equidistant projection
 newLL <- reproj(cbind(d_birds$Longitude, d_birds$Latitude), target = "+proj=merc +lon_0=150 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs", source = "+proj=longlat +datum=WGS84 +no_defs")
@@ -135,7 +136,10 @@ d_birds$Latitude2 <- newLL[,2]
 # add column of ID and time per location
 d_birds$match <- paste(d_birds$ID, d_birds$GMT, sep=".")
 
-# Make traj object (necessary for step lengths and turning angles)
+# Make traj object (necessary for step lengths and turning angles) - not necessary
+# You can use a function from bayesmove "prep_data"
+#d_birds$date <- d_birds$GMT
+#bayesmove::prep_data(dat = d_birds, coord.names = c("Longitude2", "Latitude2"), id = "ID")
 d_birds_traj <- as.ltraj(cbind(d_birds$Longitude2, d_birds$Latitude2), date=d_birds$GMT, id = d_birds$ID, typeII = T,
                          proj4string = CRS("+proj=merc +lon_0=150 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"))
 # convert to SPDF
@@ -476,118 +480,94 @@ rand_out_poly_all <- NULL
 rand_out_poly_mid <- NULL
 rand_out_poly_tern <- NULL
 
-setwd("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/overlap_sensitivity")
+
+setwd("~/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/overlap_sensitivity/")
 
 # CRW STARTS HERE
 
 # set up landmask
 library(sf)
 sf::sf_use_s2(FALSE)
-library(dplyr)
 land_mask_bbox<-st_bbox(c(xmin = -3008182, xmax = 10844089, ymax = 18027535, ymin = 185132), crs = st_crs(3832))
 land_mask_sfc <- st_as_sfc(land_mask_bbox)
-land_mask <- ptolemy::extract_gshhg(land_mask_sfc, resolution = "i", epsg = NULL, buffer = 5000,
+land_mask <- ptolemy::extract_gshhg(data = land_mask_sfc, resolution = "i", epsg = NULL, buffer = 5000,
                                     simplify = FALSE) 
 land_mask$type = "land"
 simtype <- "birds"
 
-# empty vector for point storage
-big_storage <- NULL
+# CREATE FUNCTION FOR CREATING AND TESTING NEW RANDOMLY GENERATED POINTS 
+CRW_FUN <- function(temp_FP, land_mask, num_tracks, lenndf, x, IDs){
+  
+  bloopL <- list() # create empty list to store bloops 1:num_tracks
+  temp_FP$new_dis <- 0
+  temp_FP$new_ang <- 0
+  temp_FP$date <- ymd_hms(temp_FP$date)
+  temp_FP$num <- 0
+  temp_FP$iter <- 0
+  
+  for (n in 1:num_tracks){
+    lenn <- lenndf[n,2] # get this tracks length
+    bloop <- temp_FP %>% filter(Animal_ID==IDs[n]) %>%
+      dplyr::select(Animal_ID, Longitude, Latitude,date, new_dis, new_ang, num)
+    sim_counter <- 0
+    while (sim_counter<(lenn)){
+      new_dis <- rlnorm(1,meanlog = 11.5943286, sdlog=0.9036841) # values pulled from fitdistr for relevant time period
+      new_ang <- runif(1,min=0,max=359) # uniform
+      new_x <- bloop$Longitude[sim_counter+1] + new_dis*cos(new_ang)
+      new_y <- bloop$Latitude[sim_counter+1] + new_dis*sin(new_ang)
+      timee <- ymd_hms(bloop$date[sim_counter+1]) + (sim_counter+1)
+      new_point <- st_point(x = c(new_x, new_y), dim = "XY") %>% 
+        st_sfc(crs=st_crs(land_mask)) %>% 
+        st_sf()
+      
+      in_land <- st_join(new_point, land_mask, join = st_intersects)
+      
+      if (is.na(in_land$type) & (-1708182<new_x) & (new_x<9844089) & (1185132<new_y) & (new_y<9310913)){
+        e <- data.frame("Animal_ID" = IDs, "Longitude" = new_x, "Latitude" = new_y, 
+                        "date" = timee, "new_dis" = new_dis, "new_ang" = new_ang, 
+                        "num" = sim_counter+1)
+        bloop <- rbind(bloop, e)
+        sim_counter<- sim_counter+1
+        print(sim_counter)
+      } # end of if
+    } # end of while
+    bloop$iter <- n # this is effectively assigning the sim number of 1:num_tracks
+    bloopL[[n]] <- bloop # shove the nth bloop into and bloop list
+  } # end of num_tracks for loop
+  all_bloops <- bind_rows(bloopL)
+  return(all_bloops)
+} # end of function
+
+# define spp and colony
+spp <- sapply(strsplit(first_pts$Animal_ID, "_"), "[[", 1)
+col <- sapply(strsplit(first_pts$Animal_ID, "_"), "[[", 2)
+sppcol <- paste(col, spp, sep = "_")
+first_pts$sppcol <- sppcol
+
+d_birds_df$spp <- sapply(strsplit(d_birds_df$Animal_ID, "_"), "[[", 1)
+d_birds_df$col <- sapply(strsplit(d_birds_df$Animal_ID, "_"), "[[", 2)
+d_birds_df$sppcol <- paste(d_birds_df$col, d_birds_df$spp, sep = "_")
 
 # BEGIN CRW
-# future.apply 
-for(j in 1:1000){
-  sim_CRW_pts <- NULL
-  store_here <- NULL
-  for(i in unique(first_pts$Animal_ID[first_pts$SPP == "LAAL"])){  
-    a <- first_pts[first_pts$Animal_ID == i,]
-    
-    temp_pts <- a
-    temp_pts$new_dis <- 0
-    temp_pts$new_ang <- 0
-    temp_pts$date <- ymd_hms(temp_pts$date)
-    temp_pts$num <- 0
-    temp_pts$iter <- 0
-    
-    store_here <- NULL
-    
-    lenn <- nrow(d_birds_df[d_birds_df$Animal_ID == i,])
-    
-    for(z in 1:1){
-      bloop <- temp_pts %>% dplyr::select(Animal_ID, Longitude, Latitude,date, new_dis, new_ang, num)
-      laal_sim_counter <- 0
-      while (laal_sim_counter<(lenn)){
-        new_dis <- rlnorm(1,meanlog = 11.5943286, sdlog=0.9036841) # values pulled from fitdistr for relevant time period
-        new_ang <- runif(1,min=0,max=359) # uniform
-        new_x <- bloop$Longitude[laal_sim_counter+1] + new_dis*cos(new_ang)
-        new_y <- bloop$Latitude[laal_sim_counter+1] + new_dis*sin(new_ang)
-        timee <- ymd_hms(bloop$date[laal_sim_counter+1]) + (laal_sim_counter+1)
-        
-        new_point <- st_point(x = c(new_x, new_y), dim = "XY") %>% 
-          st_sfc(crs=st_crs(land_mask)) %>% 
-          st_sf()
-        in_land <- st_join(new_point, land_mask, join = st_intersects)
-        if (is.na(in_land$type) & (-1708182<new_x) & (new_x<9844089) & (1185132<new_y) & (new_y<9310913)){
-          e <- data.frame("Animal_ID" = i, "Longitude" = new_x, "Latitude" = new_y, 
-                          "date" = timee, "new_dis" = new_dis, "new_ang" = new_ang, 
-                          "num" = laal_sim_counter+1)
-          bloop <- rbind(bloop, e)
-          laal_sim_counter<- laal_sim_counter+1
-        }
-      }
-      bloop$iter <- j
-      store_here <- rbind(store_here, bloop)
-      
-    }
-    sim_CRW_pts <- rbind(sim_CRW_pts, store_here)
-  }
+for(sc in unique(sppcol)){
+  
+  #get dataframe of first track points for each animal ID in species_colony[sc]
+  temp_FP <- first_pts[first_pts$sppcol == sc,]
+  tmp_d_birds_df <- d_birds_df[d_birds_df$sppcol == sc,]
+  
+  # Calculate the number of tracks for this species / colony combo
+  num_tracks <- length(unique(temp_FP$Animal_ID))
+  # calculate length of tracks of all animal IDs 
+  lenndf <- tmp_d_birds_df %>% group_by(Animal_ID) %>% summarise(nobs = n())
+  print(sc)
+  # THIS IS WHERE WE MUST APPLY FUNCTION - create
+  sim_CRW_pts_L <- future.apply::future_lapply(X=1:10, FUN = CRW_FUN(temp_FP = temp_FP, land_mask = land_mask, num_tracks = num_tracks, lenndf = lenndf, IDs = unique(temp_FP$Animal_ID)))
+
+  # SAVE THIS OUT
+} # end of species / colony loop
 
   
-  sim_CRW_pts2 <- NULL
-  store_here <- NULL
-  for(i in unique(first_pts$Animal_ID[first_pts$SPP == "BFAL"])){
-    a <- first_pts[first_pts$Animal_ID == i,]
-    
-    temp_pts <- a
-    temp_pts$new_dis <- 0
-    temp_pts$new_ang <- 0
-    temp_pts$date <- ymd_hms(temp_pts$date)
-    temp_pts$num <- 0
-    temp_pts$iter <- 0
-    
-    store_here <- NULL
-    
-    lenn <- nrow(d_birds_df[d_birds_df$Animal_ID == i,])
-    
-    for(z in 1:1){
-      bloop <- temp_pts %>% dplyr::select(Animal_ID, Longitude, Latitude,date, new_dis, new_ang, num)
-      bfal_sim_counter <-0
-      while (bfal_sim_counter<(lenn)){
-        new_dis <- rlnorm(1,meanlog = 11.6442824, sdlog=0.9713192) # values pulled from fitdistr for relevant time period
-        new_ang <- runif(1,min=0,max=359) # uniform
-        new_x <- bloop$Longitude[bfal_sim_counter+1] + new_dis*cos(new_ang)
-        new_y <- bloop$Latitude[bfal_sim_counter+1] + new_dis*sin(new_ang)
-        timee <- ymd_hms(bloop$date[bfal_sim_counter+1]) + (bfal_sim_counter+1)
-        
-        new_point <- st_point(x = c(new_x, new_y), dim = "XY") %>% 
-          st_sfc(crs=st_crs(land_mask)) %>% 
-          st_sf()
-        in_land <- st_join(new_point, land_mask, join = st_intersects)
-        if (is.na(in_land$type) & (-1708182<new_x) & (new_x<9844089) & (1185132<new_y) & (new_y<9310913)){
-          e <- data.frame("Animal_ID" = i, "Longitude" = new_x, "Latitude" = new_y, 
-                          "date" = timee, "new_dis" = new_dis, "new_ang" = new_ang, 
-                          "num" = bfal_sim_counter+1)
-          bloop <- rbind(bloop, e)
-          bfal_sim_counter<- bfal_sim_counter+1
-        }
-      }
-      bloop$iter <- j
-      store_here <- rbind(store_here, bloop)
-    }
-    sim_CRW_pts2 <- rbind(sim_CRW_pts2, store_here)
-  }
-  sim_CRW_pts <- rbind(sim_CRW_pts, sim_CRW_pts2)
-  big_storage <- rbind(big_storage, sim_CRW_pts)
+
   
   ### Assign new names to simulated points, convert to adehabitat points, combine with original points
   ### In a for loop create a new column with resampled track IDs (but still maintaining track IDs)
@@ -903,7 +883,7 @@ for(j in 1:1000){
   #rand_out_blobs[[j]] <- simpolys
   rand_out_table_birds <- rbind(rand_out_table_birds, c_comb)
   print(j)
-}
+
 
 rand_out_table_birds <- data.frame(rand_out_table_birds)
 colnames(rand_out_table_birds) <- c("iter", "ALAB95", "ALAB50", "MLTL95", "MLTL50", "MBTB95", "MBTB50", "MLMB95", "MLMB50", "TLTB95", "TLTB50", "simtype")

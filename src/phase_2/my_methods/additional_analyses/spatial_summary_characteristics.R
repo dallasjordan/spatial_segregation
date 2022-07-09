@@ -5,11 +5,15 @@
 
 
 # Setup -------------------------------------------------------------------
+install.packages("remotes")
+remotes::install_github("RodrigoAgronomia/PAR")
 
 library(dplyr)
 library(ggplot2)
 library(geosphere)
 library(sf)
+library(pracma)
+library(lwgeom)
 
 load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/final_tracks/all_tracks_master.Rdata")
 lm <- all_data[grep("lm", all_data$id), ]
@@ -19,6 +23,17 @@ bt <- all_data[grep("bt", all_data$id), ]
 
 mid_data <- rbind(lm,bm)
 tern_data <-rbind(lt,bt)
+
+midway <- data.frame(longitude = -177.3761,
+                     latitude = 28.2101)
+tern <- data.frame(longitude = -166.284,
+                   latitude = 23.870)
+
+midway <- st_as_sf(midway, coords = c("longitude", "latitude"), 
+                   crs = 4326, agr = "constant")
+tern <- st_as_sf(tern, coords = c("longitude", "latitude"), 
+                 crs = 4326, agr = "constant")
+
 
 # by class
 
@@ -44,12 +59,11 @@ points(bt_mean_x,bt_mean_y, cex=2, col="red")
 
 # stopping here because Scott recommended weighted center of polygons. So, need to load in polygons and calculate centroid of those
 
-
 # Centroid by polygons ----------------------------------------------------
 
 # load in KDE polygons
 
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/final_ud/")
+setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/pre_defense/final_ud/")
 path <- getwd()
 file_list <- list.files(path=path)
 
@@ -67,6 +81,106 @@ ternBFAL.poly95 <- getverticeshr(ternBFAL, percent = 95, unin = "m", unout = "km
 ternBFAL.poly50 <- getverticeshr(ternBFAL, percent = 50, unin = "m", unout = "km2") 
 
 test.df <- as.data.frame(midLAAL.poly95)
+
+st_area(midLAAL.poly95.sf)
+
+midLAAL.poly95.sf <- midLAAL.poly95 %>% st_as_sf()
+mlp95centroid <- st_centroid(midLAAL.poly95.sf)
+plot(midLAAL.poly95.sf$geometry)
+plot(mlp95centroid$geometry, add=T)
+mlp95centroid <- mlp95centroid %>% st_transform(4326)
+mlp95centroid
+st_distance(mlp95centroid,midway)
+p <- st_sfc(st_point(c(-177.3761,28.2101)), st_point(c(172.1167,48.32789)), crs=4326)
+rads<- st_geod_azimuth(p)
+angle <- rad2deg(rads)
+angle
+
+
+
+midLAAL.poly50.sf <- midLAAL.poly50 %>% st_as_sf()
+mlp50centroid <- st_centroid(midLAAL.poly50.sf)
+plot(midLAAL.poly50.sf$geometry)
+plot(mlp50centroid$geometry, add=T)
+mlp50centroid <- mlp50centroid %>% st_transform(4326)
+mlp50centroid
+st_distance(mlp50centroid,midway)
+p <- st_sfc(st_point(c(-177.3761,28.2101)), st_point(c(166.0309,47.71621)), crs=4326)
+rads<- st_geod_azimuth(p)
+angle <- rad2deg(rads)
+angle
+
+midBFAL.poly95.sf <- midBFAL.poly95 %>% st_as_sf()
+mbp95centroid <- st_centroid(midBFAL.poly95.sf)
+plot(midBFAL.poly95.sf$geometry)
+plot(mbp95centroid$geometry, add=T)
+mbp95centroid <- mbp95centroid %>% st_transform(4326)
+mbp95centroid
+st_distance(mbp95centroid,midway)
+p <- st_sfc(st_point(c(-177.3761,28.2101)), st_point(c(-177.309,45.83291)), crs=4326)
+rads<- st_geod_azimuth(p)
+angle <- rad2deg(rads)
+angle
+
+midBFAL.poly50.sf <- midBFAL.poly50 %>% st_as_sf()
+mbp50centroid <- st_centroid(midBFAL.poly50.sf)
+plot(midBFAL.poly50.sf$geometry)
+plot(mbp50centroid$geometry, add=T)
+mbp50centroid <- mbp50centroid %>% st_transform(4326)
+mbp50centroid
+st_distance(mbp50centroid,midway)
+p <- st_sfc(st_point(c(-177.3761,28.2101)), st_point(c(-177.8553,49.81271)), crs=4326)
+rads<- st_geod_azimuth(p)
+angle <- rad2deg(rads)
+angle
+
+ternLAAL.poly95.sf <- ternLAAL.poly95 %>% st_as_sf()
+tlp95centroid <- st_centroid(ternLAAL.poly95.sf)
+plot(ternLAAL.poly95.sf$geometry)
+plot(tlp95centroid$geometry, add=T)
+tlp95centroid <- tlp95centroid %>% st_transform(4326)
+tlp95centroid
+st_distance(tlp95centroid,tern)
+p <- st_sfc(st_point(c(-166.284,23.87)), st_point(c(-179.3864,44.23886)), crs=4326)
+rads<- st_geod_azimuth(p)
+angle <- rad2deg(rads)
+angle
+
+ternLAAL.poly50.sf <- ternLAAL.poly50 %>% st_as_sf()
+tlp50centroid <- st_centroid(ternLAAL.poly50.sf)
+plot(ternLAAL.poly50.sf$geometry)
+plot(tlp50centroid$geometry, add=T)
+tlp50centroid <- tlp50centroid %>% st_transform(4326)
+tlp50centroid
+st_distance(tlp50centroid,tern)
+p <- st_sfc(st_point(c(-166.284,23.87)), st_point(c(-178.1476,48.05546)), crs=4326)
+rads<- st_geod_azimuth(p)
+angle <- rad2deg(rads)
+angle
+
+ternBFAL.poly95.sf <- ternBFAL.poly95 %>% st_as_sf()
+tbp95centroid <- st_centroid(ternBFAL.poly95.sf)
+plot(ternBFAL.poly95.sf$geometry)
+plot(tbp95centroid$geometry, add=T)
+tbp95centroid <- tbp95centroid %>% st_transform(4326)
+tbp95centroid
+st_distance(tbp95centroid,tern)
+p <- st_sfc(st_point(c(-166.284,23.87)), st_point(c(-159.8199,43.8779)), crs=4326)
+rads<- st_geod_azimuth(p)
+angle <- rad2deg(rads)
+angle
+
+ternBFAL.poly50.sf <- ternBFAL.poly50 %>% st_as_sf()
+tbp50centroid <- st_centroid(ternBFAL.poly50.sf)
+plot(ternBFAL.poly50.sf$geometry)
+plot(tbp50centroid$geometry, add=T)
+tbp50centroid <- tbp50centroid %>% st_transform(4326)
+tbp50centroid
+st_distance(tbp50centroid,tern)
+p <- st_sfc(st_point(c(-166.284,23.87)), st_point(c(-137.8018,47.4593)), crs=4326)
+rads<- st_geod_azimuth(p)
+angle <- rad2deg(rads)
+angle
 
 # Calculate lat/lon ranges ------------------------------------------------
 #longitude
