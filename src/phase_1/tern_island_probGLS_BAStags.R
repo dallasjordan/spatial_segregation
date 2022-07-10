@@ -40,22 +40,20 @@ library(stringr)
 # the Data Inventory spreadsheet. This should be the only section that requires manual changing
 # in between tag analyses
 
-Species <- "29"
+Species <- "28"
 Year <- "11"
-TrackNumber <- "01" 
-
-# first/last date as noted in conners_metdata.xlsx
-
-# "MM/D/YYYY or MM/DD/YYYY", no 0 for e.g. 05, for older daylogs
-start    <- as.Date("2010-02-22")
-end      <- as.Date("2010-12-22")
+TrackNumber <- "05" 
 
 # for all Tern tags, the coordinates of Tern island colony
 
 lat.calib <- 23.87
 lon.calib <- 193.72 # correct Tern coords already
-wetdry.resolution <- 100 # sampling rate of Basic Log in seconds, e.g. once every 5 min = 300 seconds
-
+wetdry.resolution <- NULL # sampling rate of Basic Log in seconds, e.g. once every 5 min = 300 seconds
+# Note that the Mk7 and Mk19 have a different activity recording strategy to this and 
+# give higher time resolution; the penalty is that the memory fills quicker than with the 
+# normal algorithm. These devices record the exact time (within 3secs) a state change occurs; 
+# but the new state is recorded only if it is sensed for 6secs or more. This means there
+# is no consistent resolution; it varies
 
 # Read in data ------------------------------------------------------------
 
@@ -63,64 +61,77 @@ wetdry.resolution <- 100 # sampling rate of Basic Log in seconds, e.g. once ever
 # times and the .deg file for the temperature data. [possibly another for immersion data]
 
 
-setwd(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/daylog_work/Tern/tern_island_data_for_processing/load_in/20",Year,"/"))
+setwd(paste0("/Users/dallasjordan/projects/spatial_segregation/files/data/daylog_work/Tern/tern_island_data_for_processing/load_in/20",Year,"/"))
 
 # Run trn_to_dataframe to convert .trn files into a format usable by probGLS
 
-trn <- trn_to_dataframe(paste0("./",Species,Year,TrackNumber,"_daylog.trn"))
+trn <- trn_to_dataframe(paste0("./",Species,Year,TrackNumber,".trn"))
 trn <- trn[!is.na(trn$tSecond),]
 trn$keep <- loessFilter(trn, k = 3, plot = T) # run a Loess filter to take out unrealistic points. 
 trn <- trn[which(trn$keep==T),]
+head(trn)
+tail(trn)
+
+# first/last date as noted in conners_metdata.xlsx
+
+# "MM/D/YYYY or MM/DD/YYYY", no 0 for e.g. 05, for older daylogs
+start    <- as.Date("2011-01-19")
+end      <- as.Date("2011-12-24")
 
 ############################################################################################################
 
-# Prep additional data - wetdry and immersion temp ("sen" and "act" in algorithm)
+# Prep additional data - wetdry and immersion temp ("sst" and "act" in algorithm)
+# BIG NOTE - for BAS Tags (and possibly Lotek?) the sst ("sen") parameter is derived
+# from the .act file. It's not separate. Find Wetdry data, then filter out for 
+# 3 previous "wet" states, use that SST as sst/sen...or look at the Lotek manual
+# to see the difference between IntTemp and SST1 (external stem readings vs internal
+# sensor temp readings)
 # 'act' first
 
 ## datetime object needs to be in POSIXct, UTC time zone and must be called 'dtime'
-# IMPORTANT! column (,5 or ,6) in the following line may change depending on what was recorded/programmed on the tag when deployed
-tl_data$dtime <- as.POSIXct(strptime(tl_data$`Date / Time`, format="%m/%d/%Y %H:%M:%S"), tz="UTC")
+tl_data <- read_csv(paste0("./",Species,Year,TrackNumber,".act"), 
+               col_names = FALSE)
+tl_data <- tl_data[,c(2,4,5)]
+colnames(tl_data) <- c('Date / Time', 'duration', "wet.dry")
+tl_data$dtime <- as.POSIXct(strptime(tl_data$`Date / Time`, format="%d/%m/%y %H:%M:%S"), tz="UTC")
 tl_data       <- tl_data[!is.na(tl_data$dtime),]
 act           <- tl_data
+act           <- act[,c(4,2,3)]
+head(act) 
 
 ## wet dry data column must be called 'wetdry'; Lotek has 0 = wet and 1 = dry, but act expects
 ## 1 = wet and 0 = dry. 
+## For BAS tags, need to convert 'wet' to 1 and 'dry' to 0
 
-act$wetdry    <- 1-act$WetDryState
+# act <- act %>% mutate(wet.dry = 
+#   case_when(wet.dry=="wet" ~ 1,
+#             wet.dry=="dry" ~ 0)
+# )
+# 
+# head(act)
+
+# try: 
+act <- act[act$wet.dry=="wet",]
+act$wetdry    <- act$duration
+head(act)
 act <- subset(act, select = c(dtime,wetdry))
-
 head(act)
 
-## Can visualize proportion of time spent on water by day, code citation[1]
-## 960 is the number of samples per day (40 90 sec intervals in an hour times 24 hours)
-## Divide the tapply by the number of samples per day - 2700 32 sec intervals in 24 hours/112.5 32 sec intervals per hour)
-## Theoretically will see a higher proportion after fledging
 
-divide_by <-(60*60*24)/wetdry.resolution
-plot(unique(as.Date(act$dtime)), tapply(act$wetdry,as.Date(act$dtime),sum)/divide_by,
-     type="l",col=grey(0.5),ylab="daily proportion of saltwater immersion")
-points(unique(as.Date(act$dtime)),tapply(act$wetdry,as.Date(act$dtime),sum)/divide_by,
-       pch=19,cex=0.8)
-
+act           <- BBA_deg[BBA_deg$wet.dry=="wet",]
+act$wetdry    <- act$duration
 ########
 
 ## Immersion temperature data
-## only keep temperature values when the logger was immersed in salt water 
-## and if the 3 previous readings have been recorded while immersed in sea water as well
-## citation[1]
+## there needs to be a temp recording somewhere to do this - unfortunately it
+## is not present in the data provided to me and probably wasn't recorded. 
+## sen=NULL since there is no SST data
 
-td <- tl_data
-td$WetDryState.before   <- c(NA,head(td$WetDryState,-1))
-td$WetDryState.before.2 <- c(NA,NA,head(td$WetDryState,-2))
-td$WetDryState.before.3 <- c(NA,NA,NA,head(td$WetDryState,-3))
-td           <- td[td$WetDryState         ==0 & 
-                     td$WetDryState.before  ==0 & 
-                     td$WetDryState.before.2==0 & 
-                     td$WetDryState.before.3==0,]
-
-## determine daily SST value recorded by the logger (takes the median temperature of all recordings in a day)
-sen           <- sst_deduction(datetime = td$dtime, temp = td$`IntTemp [C]`, temp.range = c(-2,19))
-View(sen)
+# td <- tl_data
+# 
+# ## determine daily SST value recorded by the logger (takes the median temperature of all recordings in a day)
+# sen           <- sst_deduction(datetime = td$dtime, temp = td$`IntTemp [C]`, temp.range = c(-2,19))
+# View(sen)
 
 ############################################################################################################
 
@@ -145,8 +156,8 @@ View(sen)
 tw    <- twilight_error_estimation() # Position estimates require error in twilight calculation; this baked-in function gives an error distribution for the algorithm 
 
 pr   <- prob_algorithm(trn                         = trn, 
-                       sensor                      = sen[sen$SST.remove==F,],
-                       act                         = NULL, 
+                       sensor                      = NULL,
+                       act                         = act, 
                        tagging.date                = start, 
                        retrieval.date              = end, 
                        loess.quartile              = NULL, # don't need to do this here because I did it above
@@ -156,7 +167,7 @@ pr   <- prob_algorithm(trn                         = trn,
                        sunrise.sd                  = tw,
                        sunset.sd                   = tw,
                        range.solar                 = c(-7,-1),
-                       boundary.box                = c(120,-120,-10,64), # 64 N for Laysan
+                       boundary.box                = c(120,-90,-10,64), # 64 N for Laysan
                        days.around.spring.equinox  = c(10,10), 
                        days.around.fall.equinox    = c(10,10),
                        speed.dry                   = c(10,6,50), # Cite Weimerskirsch paper, Hyrenbach et al. 2002 for BFAL shows roughly similar to LAAL
@@ -167,12 +178,12 @@ pr   <- prob_algorithm(trn                         = trn,
                        land.mask                   = T, 
                        ice.conc.cutoff             = 0, 
                        wetdry.resolution           = wetdry.resolution, # in seconds, i.e. 5 minutes = 300 seconds
-                       NOAA.OI.location            = "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/environment_data")
+                       NOAA.OI.location            = "/Users/dallasjordan/projects/spatial_segregation/files/environment_data")
 
 summary(pr)
-plot_timeline(pr,degElevation = NULL, center.longitude =180)
+# plot_timeline(pr,degElevation = NULL, center.longitude =180)
 
-plot_map(pr) # This function does not work for this data because BFAL and LAAL cross Pacific meridian (plot_map is Atlantic centric. Below is code for a Pacific-centric mapping). 
+# plot_map(pr) # This function does not work for this data because BFAL and LAAL cross Pacific meridian (plot_map is Atlantic centric. Below is code for a Pacific-centric mapping). 
 # Ultimately, unnecessary if importing into ArcMap, but can be helpful for data visualization. 
 
 #######################################################################################################################################################
@@ -215,7 +226,7 @@ p_map <- function (pr)
 p_map(pr)
 
 # save entire object so you can import and plot again later!
-save(pr, file = paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/daylog_work/Tern/tern_spatial_points_dataframe_exports/pr_",Species,Year,
+save(pr, file = paste0("/Users/dallasjordan/projects/spatial_segregation/files/data/daylog_work/Tern/tern_spatial_points_dataframe_exports/pr_",Species,Year,
                        TrackNumber,".RData"))
 # save image as 1440x900
 
@@ -312,7 +323,7 @@ most_probable_lat <- as.data.frame(most_probable$lat)
 most_probable_export <- cbind(most_probable_dtime,most_probable_lon,most_probable_lat)
 colnames(most_probable_export) <- c("dtime","Longitude", "Latitude")
 # If you need to save this:
-write.csv(most_probable_export,paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/daylog_work/Tern/tern_geographic_median_exports/t_dl_",Species,Year,
+write.csv(most_probable_export,paste0("/Users/dallasjordan/projects/spatial_segregation/files/data/daylog_work/Tern/tern_geographic_median_exports/t_dl_",Species,Year,
                                       TrackNumber,".csv"), row.names = FALSE)    
 
 # save geographic median .csv for just postbreeding points based on dates identified from SST analysis
@@ -325,8 +336,8 @@ colnames(pb_most_probable_export) <- c("dtime","Longitude", "Latitude")
 
 # filter by using known postbreeding dates that Melinda identified using the SST variability method instead of running ID portion of script again:
 TrackNumber  
-cleanstart <- "07/09/2009"
-cleanend <- "11/22/2009" 
+cleanstart <- "06/08/2011"
+cleanend <- "11/24/2011" 
 clean_start <- strptime(cleanstart,format="%m/%d/%Y", tz="UTC")
 clean_end <- strptime(cleanend,format="%m/%d/%Y", tz="UTC")
 current_start <- date(clean_start)
@@ -336,7 +347,7 @@ pb_most_probable_export<- pb_most_probable_export %>%
   filter(dtime >= current_start & dtime <= current_end)
 
 #if you need to save this: 
-write.csv(pb_most_probable_export,paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/daylog_work/Tern/tern_postbreeding_geographic_median_exports/t_pb_",Species,Year,
+write.csv(pb_most_probable_export,paste0("/Users/dallasjordan/projects/spatial_segregation/files/data/daylog_work/Tern/tern_postbreeding_geographic_median_exports/t_pb_",Species,Year,
                                          TrackNumber,".csv"), row.names = FALSE)
 
 
@@ -345,16 +356,16 @@ write.csv(pb_most_probable_export,paste0("/Users/dallasjordan/Desktop/StonyBrook
 
 # visualize full track 
 plot(most_probable_export$Longitude,most_probable_export$Latitude ,type = "p", ylab="Latitude", xlab="Longitude",
-     xlim= c(120,240), ylim = c(-10, 75), bty = "n", pch=16,cex=0.5)
+     xlim= c(120,270), ylim = c(-10, 75), bty = "n", pch=16,cex=0.5)
 points(most_probable_export$Longitude,most_probable_export$Latitude, pch=16, cex=0.5, col="red")
 points(182.65,28.2,pch=7,cex=.8,col="darkblue")
-map('world2Hires', xlim= c(120,240), ylim = c(-10, 75),  col = "grey", add = T)
+map('world2Hires', xlim= c(120,270), ylim = c(-10, 75),  col = "grey", add = T)
 # visualize postbreeding
 plot(pb_most_probable_export$Longitude,pb_most_probable_export$Latitude ,type = "p", ylab="Latitude", xlab="Longitude",
-     xlim= c(120,240), ylim = c(-10, 75), bty = "n", pch=16,cex=0.5)
+     xlim= c(120,270), ylim = c(-10, 75), bty = "n", pch=16,cex=0.5)
 points(pb_most_probable_export$Longitude,pb_most_probable_export$Latitude, pch=16, cex=0.5, col="red")
 points(182.65,28.2,pch=7,cex=.8,col="darkblue")
-map('world2Hires', xlim= c(120,240), ylim = c(-10, 75),  col = "grey", add = T)
+map('world2Hires', xlim= c(120,270), ylim = c(-10, 75),  col = "grey", add = T)
 
 
 
