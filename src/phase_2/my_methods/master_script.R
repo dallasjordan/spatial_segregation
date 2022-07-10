@@ -59,6 +59,8 @@
 library(dplyr)
 library(maptools)
 library(rgdal) # probably not needed, this is outdated by stars, terra, and sf
+# just kidding, it is needed for spTransform. You should migrate to sf and stop
+# using sp and functions that rely on sp
 # library(GeoLocTools)
 # setupGeolocation()
 # Not available for R>=4.0, though you can get around that if you need
@@ -98,7 +100,7 @@ years <- c("2008","2009","2010","2011","2012")
 
 
 # Load data ---------------------------------------------------------------
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/final_tracks/")
+setwd("~/projects/spatial_segregation/files/data/final_tracks")
 
 load("./LAALdata_midway_withTrackID.Rdata")
 LAALmid <- LAAL
@@ -417,7 +419,7 @@ midBFAL <- bm_averaged_estUD
 ternLAAL <- lt_averaged_estUD
 ternBFAL <- bt_averaged_estUD
 
-path <- paste0(getwd(),"/final_push/final_ud/")
+# path <- paste0(getwd(),"/pre_defense/final_ud/")
 # save(allLAAL, file=paste0(path,"allLAAL.Rdata"))
 # save(allBFAL, file=paste0(path,"allBFAL.Rdata"))
 # save(midLAAL, file=paste0(path,"midLAAL.Rdata"))
@@ -427,13 +429,13 @@ path <- paste0(getwd(),"/final_push/final_ud/")
 
 ### load in files ###
 
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/final_ud/")
-path <- getwd()
-file_list <- list.files(path=path)
-
-for (i in 1:length(file_list)){
-  load(file_list[i])
-}
+# setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/final_ud/")
+# path <- getwd()
+# file_list <- list.files(path=path)
+# 
+# for (i in 1:length(file_list)){
+#   load(file_list[i])
+# }
 
 ### done loading ###
 
@@ -462,7 +464,7 @@ class(ternLAAL_v_ternBFAL)<-"estUDm"
 names(ternLAAL_v_ternBFAL)<-c("ternLAAL","ternBFAL")
 
 # save data classes; now you don't need to re-run all of the above
-path <- "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/permutation_tests/data_to_load/"
+# path <- "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/permutation_tests/data_to_load/"
 # save(allLAAL_v_allBFAL, file=paste0(path,"allLAAL_v_allBFAL.Rdata"))
 # save(midLAAL_v_ternLAAL, file=paste0(path,"midLAAL_v_ternLAAL.Rdata"))
 # save(midBFAL_v_ternBFAL, file=paste0(path,"midBFAL_v_ternBFAL.Rdata"))
@@ -474,13 +476,13 @@ path <- "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregati
 
 ### load in files ###
 
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/permutation_tests/data_to_load/")
-path <- getwd()
-file_list <- list.files(path=path)
-
-for (i in 1:length(file_list)){
-  load(file_list[i])
-}
+# setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/permutation_tests/data_to_load/")
+# path <- getwd()
+# file_list <- list.files(path=path)
+# 
+# for (i in 1:length(file_list)){
+#   load(file_list[i])
+# }
 
 ### done loading ###
 
@@ -554,9 +556,9 @@ tltb_PHR_50_test_stat <- tltb_PHR_50[1,2]
 tltb_95_BA_test_stat <- tltb_95_BA[1,2]
 tltb_50_BA_test_stat <- tltb_50_BA[1,2]
 
-path <- "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/permutation_tests/test_stats/"
-setwd(path)
-save(list = ls(all.names = TRUE), file = "all_test_stats.RData")
+# path <- "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/final_push/permutation_tests/test_stats/"
+# setwd(path)
+# save(list = ls(all.names = TRUE), file = "all_test_stats.RData")
 
 # Rasters/Contours and GGplot visualization -------------------------------
 
