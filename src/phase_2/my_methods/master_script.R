@@ -58,10 +58,10 @@
 # packages
 library(dplyr)
 library(maptools)
-library(rgdal)
+library(rgdal) # probably not needed, this is outdated by stars, terra, and sf
 # library(GeoLocTools)
 # setupGeolocation()
-# Not available for R>=4.0
+# Not available for R>=4.0, though you can get around that if you need
 library(mapdata)
 library(rgeos)
 library(raster)
