@@ -41,8 +41,8 @@ library(stringr)
 # in between tag analyses
 
 Species <- "28"
-Year <- "11"
-TrackNumber <- "05" 
+Year <- "12"
+TrackNumber <- "07" 
 
 # for all Tern tags, the coordinates of Tern island colony
 
@@ -75,8 +75,8 @@ tail(trn)
 # first/last date as noted in conners_metdata.xlsx
 
 # "MM/D/YYYY or MM/DD/YYYY", no 0 for e.g. 05, for older daylogs
-start    <- as.Date("2011-01-19")
-end      <- as.Date("2011-12-24")
+start    <- as.Date("2012-01-20")
+end      <- as.Date("2012-12-17")
 
 ############################################################################################################
 
@@ -91,6 +91,7 @@ end      <- as.Date("2011-12-24")
 ## datetime object needs to be in POSIXct, UTC time zone and must be called 'dtime'
 tl_data <- read_csv(paste0("./",Species,Year,TrackNumber,".act"), 
                col_names = FALSE)
+tl_data <- tl_data %>% filter(X1=="ok")
 tl_data <- tl_data[,c(2,4,5)]
 colnames(tl_data) <- c('Date / Time', 'duration', "wet.dry")
 tl_data$dtime <- as.POSIXct(strptime(tl_data$`Date / Time`, format="%d/%m/%y %H:%M:%S"), tz="UTC")
@@ -157,7 +158,7 @@ tw    <- twilight_error_estimation() # Position estimates require error in twili
 
 pr   <- prob_algorithm(trn                         = trn, 
                        sensor                      = NULL,
-                       act                         = act, 
+                       act                         = NULL, 
                        tagging.date                = start, 
                        retrieval.date              = end, 
                        loess.quartile              = NULL, # don't need to do this here because I did it above
@@ -336,8 +337,8 @@ colnames(pb_most_probable_export) <- c("dtime","Longitude", "Latitude")
 
 # filter by using known postbreeding dates that Melinda identified using the SST variability method instead of running ID portion of script again:
 TrackNumber  
-cleanstart <- "06/08/2011"
-cleanend <- "11/24/2011" 
+cleanstart <- "06/21/2012"
+cleanend <- "11/16/2012" 
 clean_start <- strptime(cleanstart,format="%m/%d/%Y", tz="UTC")
 clean_end <- strptime(cleanend,format="%m/%d/%Y", tz="UTC")
 current_start <- date(clean_start)

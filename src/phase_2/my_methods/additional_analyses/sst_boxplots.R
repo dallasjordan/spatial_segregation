@@ -6,18 +6,19 @@
 # Setup -------------------------------------------------------------------
 
 library(ggplot2)
-library(tidyverse)
+library(dplyr)
 library(readr)
 
 
 # load in collated files -------------------------------------
 
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/oceanographic_data/SST/daily_averaged_SST_data")
+setwd("/Users/dallasjordan/projects/spatial_segregation/files/data/oceanographic_data/SST/daily_averaged_SST_data")
 file.list <- list.files(getwd())
 load(file.list[1])
 load(file.list[2])
 load(file.list[3])
 load(file.list[4])
+load(file.list[5])
 
 # drop dtime columns - just makes it harder, can recover that later if you need it
 # allLAAL_SST_Midway <- allLAAL_SST_Midway[,-c(2,3)]
@@ -58,7 +59,7 @@ save(all_SST,file="/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial
 
 # START HERE - load in master SST with everything -------------------------
 
-load("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/oceanographic_data/SST/daily_averaged_sst_data/all_DailyAverageSST.Rdata")
+load("/Users/dallasjordan/projects/spatial_segregation/files/data/oceanographic_data/SST/daily_averaged_sst_data/all_DailyAverageSST.Rdata")
 
 # IMPORTANT NOTE - TEMP COLLECTION FOR 2010 LAAL AT TERN FAILED, all files did not record correctly. Exclude from yearly analysis
 
@@ -96,3 +97,14 @@ ggplot() +
 
 
 counts <- all_SST %>% count(Month,island,spp)
+
+
+# Calculate averages ------------------------------------------------------
+
+Midway_avg <- all_SST %>% filter(island=="Midway") %>% filter(spp=="BFAL") %>% group_by(month)
+Midway_avg <- Midway_avg %>% summarize(Mean=mean(DailyMeanSST))
+Midway_avg
+
+Tern_avg <- all_SST %>% filter(island=="Tern") %>% filter(spp=="BFAL") %>% group_by(month)
+Tern_avg <- Tern_avg %>% summarize(Mean=mean(DailyMeanSST))
+Tern_avg
