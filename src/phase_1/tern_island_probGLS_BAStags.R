@@ -48,12 +48,13 @@ TrackNumber <- "07"
 
 lat.calib <- 23.87
 lon.calib <- 193.72 # correct Tern coords already
-wetdry.resolution <- NULL # sampling rate of Basic Log in seconds, e.g. once every 5 min = 300 seconds
+wetdry.resolution <- 1 # sampling rate of Basic Log in seconds, e.g. once every 5 min = 300 seconds
 # Note that the Mk7 and Mk19 have a different activity recording strategy to this and 
 # give higher time resolution; the penalty is that the memory fills quicker than with the 
 # normal algorithm. These devices record the exact time (within 3secs) a state change occurs; 
 # but the new state is recorded only if it is sensed for 6secs or more. This means there
-# is no consistent resolution; it varies
+# is no consistent resolution; it varies. I think setting this parameter to 1 under this strategy
+# will work. 
 
 # Read in data ------------------------------------------------------------
 
@@ -124,15 +125,14 @@ act$wetdry    <- act$duration
 ########
 
 ## Immersion temperature data
-## there needs to be a temp recording somewhere to do this - unfortunately it
-## is not present in the data provided to me and probably wasn't recorded. 
-## sen=NULL since there is no SST data
+td <- read_csv(paste0("~/projects/spatial_segregation/files/data/daylog_work/Tern/tern_island_data_for_processing/temp_logs/",Species,Year,TrackNumber,"_templog.txt"), 
+                            col_names = FALSE)
+colnames(td) <- c("status","dtime","dtime2","sst")
+td$dtime <- as.POSIXct(strptime(td$dtime, format="%d/%m/%y %H:%M:%S"), tz="UTC")
 
-# td <- tl_data
-# 
-# ## determine daily SST value recorded by the logger (takes the median temperature of all recordings in a day)
-# sen           <- sst_deduction(datetime = td$dtime, temp = td$`IntTemp [C]`, temp.range = c(-2,19))
-# View(sen)
+# determine daily SST value recorded by the logger (takes the median temperature of all recordings in a day)
+sen           <- sst_deduction(datetime = td$dtime, temp = td$sst, temp.range = c(-2,19))
+#View(sen)
 
 ############################################################################################################
 
@@ -157,8 +157,8 @@ act$wetdry    <- act$duration
 tw    <- twilight_error_estimation() # Position estimates require error in twilight calculation; this baked-in function gives an error distribution for the algorithm 
 
 pr   <- prob_algorithm(trn                         = trn, 
-                       sensor                      = NULL,
-                       act                         = NULL, 
+                       sensor                      = sen[sen$SST.remove==F,],
+                       act                         = act, 
                        tagging.date                = start, 
                        retrieval.date              = end, 
                        loess.quartile              = NULL, # don't need to do this here because I did it above
@@ -173,7 +173,7 @@ pr   <- prob_algorithm(trn                         = trn,
                        days.around.fall.equinox    = c(10,10),
                        speed.dry                   = c(10,6,50), # Cite Weimerskirsch paper, Hyrenbach et al. 2002 for BFAL shows roughly similar to LAAL
                        speed.wet                   = c(1,1.3,5), 
-                       sst.sd                      = 0.2, # logger-derived temperature accuracy    
+                       sst.sd                      = 0.5, # logger-derived temperature accuracy (0.2 for Lotek)  
                        max.sst.diff                = 3, # maximum discrepancy allowed between recorded and remote sensed SST        
                        east.west.comp              = F,
                        land.mask                   = T, 
@@ -240,77 +240,77 @@ save(pr, file = paste0("/Users/dallasjordan/projects/spatial_segregation/files/d
 # When plot appears - the program will wait for you to click twice on the plot to indicate the start and stop indices of the migration. Click once for each of the two locations, and then click 'Finish' once done. 
 
 # Required functions -----------------------------------------------------
-clean_date<-function(date_messy, dividr) {
-  # date_messy <- date in character format
-  # dividr <- how the date units are separated (usually "/", but sometimes "-")
-  t<-as.character(date_messy)
-  lt<-strsplit(t,dividr)
-  for (k in 1:length(lt)) {
-    mt<-lt[[k]][1] #month
-    lt[[k]][1]<-ifelse(nchar(mt)<2,paste("0",mt,sep=""),mt) # If month is one digit, make into two digit
-    dt<-lt[[k]][2] #day
-    lt[[k]][2]<-ifelse(nchar(dt)<2,paste("0",dt,sep=""),dt) # If day is one digit, make into two digit
-  }
-  
-  tv<-matrix(NA, nrow=length(lt),ncol=1)
-  tv<-as.data.frame(tv)
-  for (k in 1:length(lt)) {
-    tv[k,1]<-paste(lt[[k]][1],lt[[k]][2],lt[[k]][3], sep="/")
-  }
-  tv<-as.character(tv)
-  return(tv)
-}
-
+# clean_date<-function(date_messy, dividr) {
+#   # date_messy <- date in character format
+#   # dividr <- how the date units are separated (usually "/", but sometimes "-")
+#   t<-as.character(date_messy)
+#   lt<-strsplit(t,dividr)
+#   for (k in 1:length(lt)) {
+#     mt<-lt[[k]][1] #month
+#     lt[[k]][1]<-ifelse(nchar(mt)<2,paste("0",mt,sep=""),mt) # If month is one digit, make into two digit
+#     dt<-lt[[k]][2] #day
+#     lt[[k]][2]<-ifelse(nchar(dt)<2,paste("0",dt,sep=""),dt) # If day is one digit, make into two digit
+#   }
+#   
+#   tv<-matrix(NA, nrow=length(lt),ncol=1)
+#   tv<-as.data.frame(tv)
+#   for (k in 1:length(lt)) {
+#     tv[k,1]<-paste(lt[[k]][1],lt[[k]][2],lt[[k]][3], sep="/")
+#   }
+#   tv<-as.character(tv)
+#   return(tv)
+# }
+# 
 
 ## Identification of post-breeding period ------------------------------------------------------------------------------------------------
-
-wd <- setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/daylog_work/Tern/tern_island_data_for_processing/temp_logs/")
-f <- list.files(wd,pattern=paste0(Species,Year,TrackNumber)) # List of .csv files in directory - these should be your SST .txt logs, may need to change to .txt
-newm<-as.data.frame(matrix(NA,length(f),3)) # Create an empty matrix to fill 
-colnames(newm)<-c("file","start_day","end_day")
-
-for (i in 1:length(f)){
-  
-  # Read in file i , skip 3 lines due to headers
-  # rawts<-read.csv(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/daylog_work/temperature_logs_matched/",Species,"/",f[i],sep=""), skip=3, sep=",")
-  # colnames(rawts) <- c("index", "date","time", "SST","WetDry")
-  # For 2008:
-  tl_data <- read_csv(paste0(Species,Year,TrackNumber,"_templog.TXT"), skip = 2)
-  rawts<-read_csv(f[i], skip=2)
-  colnames(rawts) <- c("index", "date", "SST","WetDry")
-  # rawts<-rawts[min(which(grepl(actual_first,rawts$date))):max(which(grepl(actual_last,rawts$date))),]
-  
-  # Plot SST Timeseries (use index (n) and not datetime on X axis, because it will save a lot of time)
-  n<-dim(rawts)[1] 
-  plot(c(1:n),rawts$SST,'l') 
-  #Identify "Start" and "Stop" of PostBreeding Migration by clicking on timeseries. Press 'Finish' when done. This saves coordinates in coor matrix. 
-  coor<-identify(c(1:n),rawts$SST) 
-  
-  # store start and end as datetime - requires a little bit of character-smithing
-  startvec<-unlist(strsplit(as.character(rawts[coor[1],2])," "))
-  startdate<-startvec[which(nchar(trimws(startvec))!=0)][1]
-  
-  endvec<-unlist(strsplit(as.character(rawts[coor[2],2])," "))
-  enddate<-endvec[which(nchar(trimws(endvec))!=0)][1]
-  
-  cleanstart<-clean_date(startdate,"/")
-  cleanend<-clean_date(enddate,"/")
-  
-  # Add to dataframe, dataframe exists because original code aggregated all sst .txt files in one dataframe
-  newm$file[i]<-f[i]
-  newm$start_day[i]<-cleanstart
-  newm$end_day[i]<-cleanend
-}
-
-start_postbreeding <- cleanstart
-end_postbreeding <- cleanend
-
-# Grab dates to get postbreeding from pr object 
-# date(pr$`most probable track`$dtime) don't need this
-clean_start <- strptime(cleanstart,format="%m/%d/%Y", tz="UTC")
-clean_end <- strptime(cleanend,format="%m/%d/%Y", tz="UTC")
-current_start <- date(clean_start)
-current_end <- date(clean_end)
+# 
+# wd <- setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/daylog_work/Tern/tern_island_data_for_processing/temp_logs/")
+# f <- list.files(wd,pattern=paste0(Species,Year,TrackNumber)) # List of .csv files in directory - these should be your SST .txt logs, may need to change to .txt
+# newm<-as.data.frame(matrix(NA,length(f),3)) # Create an empty matrix to fill 
+# colnames(newm)<-c("file","start_day","end_day")
+# 
+# for (i in 1:length(f)){
+#   
+#   # Read in file i , skip 3 lines due to headers
+#   # rawts<-read.csv(paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/daylog_work/temperature_logs_matched/",Species,"/",f[i],sep=""), skip=3, sep=",")
+#   # colnames(rawts) <- c("index", "date","time", "SST","WetDry")
+#   # For 2008:
+#   tl_data <- read_csv(paste0(Species,Year,TrackNumber,"_templog.TXT"), skip = 2)
+#   rawts<-read_csv(f[i], skip=2)
+#   colnames(rawts) <- c("index", "date", "SST","WetDry")
+#   # rawts<-rawts[min(which(grepl(actual_first,rawts$date))):max(which(grepl(actual_last,rawts$date))),]
+#   
+#   # Plot SST Timeseries (use index (n) and not datetime on X axis, because it will save a lot of time)
+#   n<-dim(rawts)[1] 
+#   plot(c(1:n),rawts$SST,'l') 
+#   #Identify "Start" and "Stop" of PostBreeding Migration by clicking on timeseries. Press 'Finish' when done. This saves coordinates in coor matrix. 
+#   coor<-identify(c(1:n),rawts$SST) 
+#   
+#   # store start and end as datetime - requires a little bit of character-smithing
+#   startvec<-unlist(strsplit(as.character(rawts[coor[1],2])," "))
+#   startdate<-startvec[which(nchar(trimws(startvec))!=0)][1]
+#   
+#   endvec<-unlist(strsplit(as.character(rawts[coor[2],2])," "))
+#   enddate<-endvec[which(nchar(trimws(endvec))!=0)][1]
+#   
+#   cleanstart<-clean_date(startdate,"/")
+#   cleanend<-clean_date(enddate,"/")
+#   
+#   # Add to dataframe, dataframe exists because original code aggregated all sst .txt files in one dataframe
+#   newm$file[i]<-f[i]
+#   newm$start_day[i]<-cleanstart
+#   newm$end_day[i]<-cleanend
+# }
+# 
+# start_postbreeding <- cleanstart
+# end_postbreeding <- cleanend
+# 
+# # Grab dates to get postbreeding from pr object 
+# # date(pr$`most probable track`$dtime) don't need this
+# clean_start <- strptime(cleanstart,format="%m/%d/%Y", tz="UTC")
+# clean_end <- strptime(cleanend,format="%m/%d/%Y", tz="UTC")
+# current_start <- date(clean_start)
+# current_end <- date(clean_end)
 
 ############################################################################################################
 
@@ -337,8 +337,8 @@ colnames(pb_most_probable_export) <- c("dtime","Longitude", "Latitude")
 
 # filter by using known postbreeding dates that Melinda identified using the SST variability method instead of running ID portion of script again:
 TrackNumber  
-cleanstart <- "06/21/2012"
-cleanend <- "11/16/2012" 
+cleanstart <- "06/12/2012"
+cleanend <- "11/11/2012" 
 clean_start <- strptime(cleanstart,format="%m/%d/%Y", tz="UTC")
 clean_end <- strptime(cleanend,format="%m/%d/%Y", tz="UTC")
 current_start <- date(clean_start)

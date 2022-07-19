@@ -40,21 +40,21 @@ library(stringr)
 # the Data Inventory spreadsheet. This should be the only section that requires manual changing
 # in between tag analyses
 
-Species <- "29"
-Year <- "10"
-TrackNumber <- "07" 
+Species <- "28"
+Year <- "08"
+TrackNumber <- "06" 
 
 # first/last date as noted in conners_metdata.xlsx
 
 # "MM/D/YYYY or MM/DD/YYYY", no 0 for e.g. 05, for older daylogs
-start    <- as.Date("2010-02-09")
-end      <- as.Date("2010-11-27")
+start    <- as.Date("2008-03-13")
+end      <- as.Date("2008-09-04")
 
 # for all Tern tags, the coordinates of Tern island colony
 
 lat.calib <- 23.87
 lon.calib <- 193.72 # correct Tern coords already
-wetdry.resolution <- 5 # sampling rate of Basic Log in seconds, e.g. once every 5 min = 300 seconds
+wetdry.resolution <- 100 # sampling rate of Basic Log in seconds, e.g. once every 5 min = 300 seconds
 
 
 # Read in data ------------------------------------------------------------
@@ -67,17 +67,17 @@ wetdry.resolution <- 5 # sampling rate of Basic Log in seconds, e.g. once every 
 # Based on data organization when you wrote this, you need to change the year at the end of this wd whenever you change
 # years that you are processing!
 
-setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/daylog_work/Tern/tern_island_data_for_processing/load_in/2010/")
-wd <- setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/daylog_work/Tern/tern_island_data_for_processing/load_in/2010/")
+setwd("/Users/dallasjordan/projects/spatial_segregation/files/data/daylog_work/Tern/tern_island_data_for_processing/load_in/2008/")
+wd <- setwd("/Users/dallasjordan/projects/spatial_segregation/files/data/daylog_work/Tern/tern_island_data_for_processing/load_in/2008/")
 
 
 # For 2008 and 2010 ----------------------------------------------------------------
 
 
 # load in daylog
-# data <- read_csv(paste0(Species,Year,TrackNumber,"_daylog.TXT"), skip=2)
-# colnames(data) <- c("Rec #", "Date / Time", "Sunrise", "Sunset", "WetDryChange","SST1 [C]", "Latitude", "Longitude")
-# head(data)
+data <- read_csv(paste0(Species,Year,TrackNumber,"_daylog.TXT"), skip=2)
+colnames(data) <- c("Rec #", "Date / Time", "Sunrise", "Sunset", "WetDryChange","SST1 [C]", "Latitude", "Longitude")
+head(data)
 
       # For 281001, which only has Lat/Lon in degrees in a .CSV instead of a .txt
       # library(readr)
@@ -141,16 +141,16 @@ wd <- setwd("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segre
 # head(tl_data)
 
       # For the one funky templog, # 280806
-      # library(readr)
-      # tl_data <- read_csv("280806_templog.TXT",
-      #                             col_names = FALSE)
-      # library(stringr)
-      # tl_data$Date <- str_c(tl_data$X2,"/", tl_data$X3,"/",tl_data$X4)
-      # tl_data$Time <- str_c(tl_data$X5,":",tl_data$X6,":",tl_data$X7)
-      # tl_data$"Date / Time" <- str_c(tl_data$Date," ",tl_data$Time)
-      # tl_data <- tl_data[,c(1,12,8,9)]
-      # colnames(tl_data) <- c("Rec #", "Date / Time", "IntTemp [C]", "WetDryState")
-      
+      library(readr)
+      tl_data <- read_csv("280806_templog.TXT",
+                                   col_names = FALSE)
+      library(stringr)
+      tl_data$Date <- str_c(tl_data$X2,"/", tl_data$X3,"/",tl_data$X4)
+      tl_data$Time <- str_c(tl_data$X5,":",tl_data$X6,":",tl_data$X7)
+      tl_data$"Date / Time" <- str_c(tl_data$Date," ",tl_data$Time)
+      tl_data <- tl_data[,c(1,12,8,9)]
+      colnames(tl_data) <- c("Rec #", "Date / Time", "IntTemp [C]", "WetDryState")
+
       # For 281001, which only has IntTemp in Celsius in a .csv instead of a .txt
       # library(readr)
       # tl_data <- read_csv(paste0(Species,Year,TrackNumber,"_templog.csv"), skip=2)
@@ -406,7 +406,7 @@ pr   <- prob_algorithm(trn                         = trn,
                        land.mask                   = T, 
                        ice.conc.cutoff             = 0, 
                        wetdry.resolution           = wetdry.resolution, # in seconds, i.e. 5 minutes = 300 seconds
-                       NOAA.OI.location            = "/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/environment_data")
+                       NOAA.OI.location            = "/Users/dallasjordan/projects/spatial_segregation/files/environment_data")
  
 summary(pr)
 plot_timeline(pr,degElevation = NULL, center.longitude =180)
@@ -454,7 +454,7 @@ p_map <- function (pr)
 p_map(pr)
 
 # save entire object so you can import and plot again later!
-save(pr, file = paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/daylog_work/Tern/tern_spatial_points_dataframe_exports/pr_",Species,Year,
+save(pr, file = paste0("/Users/dallasjordan/projects/spatial_segregation/files/data/daylog_work/Tern/tern_spatial_points_dataframe_exports/pr_",Species,Year,
                        TrackNumber,".RData"))
 # save image as 1440x900
 
@@ -551,7 +551,7 @@ most_probable_lat <- as.data.frame(most_probable$lat)
 most_probable_export <- cbind(most_probable_dtime,most_probable_lon,most_probable_lat)
 colnames(most_probable_export) <- c("dtime","Longitude", "Latitude")
 # If you need to save this:
-write.csv(most_probable_export,paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/daylog_work/Tern/tern_geographic_median_exports/t_dl_",Species,Year,
+write.csv(most_probable_export,paste0("/Users/dallasjordan/projects/spatial_segregation/files/data/daylog_work/Tern/tern_geographic_median_exports/t_dl_",Species,Year,
                                       TrackNumber,".csv"), row.names = FALSE)    
 
 # save geographic median .csv for just postbreeding points based on dates identified from SST analysis
@@ -564,8 +564,8 @@ colnames(pb_most_probable_export) <- c("dtime","Longitude", "Latitude")
 
 # filter by using known postbreeding dates that Melinda identified using the SST variability method instead of running ID portion of script again:
   TrackNumber  
-  cleanstart <- "02/12/2010"
-  cleanend <- "11/12/2010" 
+  cleanstart <- "01/10/2008"
+  cleanend <- "12/29/2008" 
   clean_start <- strptime(cleanstart,format="%m/%d/%Y", tz="UTC")
   clean_end <- strptime(cleanend,format="%m/%d/%Y", tz="UTC")
   current_start <- date(clean_start)
@@ -575,7 +575,7 @@ pb_most_probable_export<- pb_most_probable_export %>%
   filter(dtime >= current_start & dtime <= current_end)
 
 #if you need to save this: 
-write.csv(pb_most_probable_export,paste0("/Users/dallasjordan/Desktop/StonyBrook/SoMAS/Thesis/R/spatial_segregation/data/daylog_work/Tern/tern_postbreeding_geographic_median_exports/t_pb_",Species,Year,
+write.csv(pb_most_probable_export,paste0("/Users/dallasjordan/projects/spatial_segregation/files/data/daylog_work/Tern/tern_postbreeding_geographic_median_exports/t_pb_",Species,Year,
                                          TrackNumber,".csv"), row.names = FALSE)
 
 
